@@ -1,13 +1,20 @@
 'use client'
 
-import { useState } from 'react'
-
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 export default function Home() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<{role: string, content: string}[]>([])
   const [loading, setLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+const [user, setUser] = useState<any>(null)
 
+useEffect(() => {
+  supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) window.location.href = '/login'
+    else setUser(data.user)
+  })
+}, [])
   const sendMessage = async () => {
     if (!input.trim()) return
     const userMessage = input
@@ -71,10 +78,9 @@ export default function Home() {
           <div style={{ marginTop: 'auto', borderTop: '1px solid #d6cfc0', paddingTop: '12px' }}>
             <span style={{ backgroundColor: '#2d5a27', color: '#d4e8c2', fontSize: '10px', padding: '3px 8px', borderRadius: '20px' }}>Pro plan</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-              <div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#c2dba8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600', color: '#2d5a27' }}>JD</div>
-              <div>
-                <div style={{ fontSize: '12px', color: '#333' }}>John D.</div>
-                <div style={{ fontSize: '11px', color: '#888' }}>john@email.com</div>
+<div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#c2dba8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600', color: '#2d5a27' }}>{user?.email?.slice(0,2).toUpperCase() || 'ME'}</div>              <div>
+                <div style={{ fontSize: '12px', color: '#333' }}>{user?.email?.split('@')[0] || 'User'}</div>
+<div style={{ fontSize: '11px', color: '#888' }}>{user?.email || ''}</div>
               </div>
             </div>
           </div>
@@ -88,8 +94,7 @@ export default function Home() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: '22px', fontWeight: '500', color: '#1a1a1a' }}>Good morning, <span style={{ color: '#2d5a27' }}>John</span> 👋</div>
-            <div style={{ fontSize: '12px', color: '#888', backgroundColor: '#ede9de', padding: '5px 12px', borderRadius: '20px', whiteSpace: 'nowrap' }}>June 5 2026</div>
+Good morning, <span style={{ color: '#2d5a27' }}>{user?.email?.split('@')[0] || 'there'}</span> 👋            <div style={{ fontSize: '12px', color: '#888', backgroundColor: '#ede9de', padding: '5px 12px', borderRadius: '20px', whiteSpace: 'nowrap' }}>June 5 2026</div>
           </div>
 
           <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
