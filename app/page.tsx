@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import * as XLSX from 'xlsx'
 
 export default function Home() {
   const [input, setInput] = useState('')
@@ -10,8 +11,8 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [ideas, setIdeas] = useState<any[]>([])
-
-const [ideasCount, setIdeasCount] = useState(0)
+  const [ideasCount, setIdeasCount] = useState(0)
+  const [spreadsheetData, setSpreadsheetData] = useState<any>(null)
 
   const fetchIdeas = async () => {
     const { data } = await supabase.from('ideas').select('*').order('created_at', { ascending: false }).limit(3)
@@ -19,10 +20,11 @@ const [ideasCount, setIdeasCount] = useState(0)
     const { count } = await supabase.from('ideas').select('*', { count: 'exact', head: true })
     if (count !== null) setIdeasCount(count)
   }
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-if (!data.user) window.location.href = '/landing'     
- else {
+      if (!data.user) window.location.href = '/landing'
+      else {
         setUser(data.user)
         fetchIdeas()
       }
@@ -44,7 +46,13 @@ if (!data.user) window.location.href = '/landing'
     const data = await res.json()
     setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
     setLoading(false)
-setTimeout(() => fetchIdeas(), 1500)  }
+    if (data.spreadsheet) {
+      setSpreadsheetData(data.spreadsheet)
+    } else {
+      setSpreadsheetData(null)
+    }
+    setTimeout(() => fetchIdeas(), 1500)
+  }
 
   return (
     <>
@@ -83,7 +91,8 @@ setTimeout(() => fetchIdeas(), 1500)  }
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#7a5c10', fontSize: '14px', cursor: 'pointer', backgroundColor: '#fdf6e3' }}>🎬 Video analysis</div>
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Account</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>💳 Billing</div>
-<div onClick={async () => { await supabase.auth.signOut(); window.location.href = '/landing'; }} style={{ padding: '8px 10px', borderRadius: '8px', color: '#e53e3e', fontSize: '14px', cursor: 'pointer' }}>🚪 Sign out</div>          <div style={{ marginTop: 'auto', borderTop: '1px solid #d6cfc0', paddingTop: '12px' }}>
+          <div onClick={async () => { await supabase.auth.signOut(); window.location.href = '/landing'; }} style={{ padding: '8px 10px', borderRadius: '8px', color: '#e53e3e', fontSize: '14px', cursor: 'pointer' }}>🚪 Sign out</div>
+          <div style={{ marginTop: 'auto', borderTop: '1px solid #d6cfc0', paddingTop: '12px' }}>
             <span style={{ backgroundColor: '#2d5a27', color: '#d4e8c2', fontSize: '10px', padding: '3px 8px', borderRadius: '20px' }}>Pro plan</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
               <div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#c2dba8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600', color: '#2d5a27' }}>{user?.email?.slice(0,2).toUpperCase() || 'ME'}</div>
@@ -106,7 +115,8 @@ setTimeout(() => fetchIdeas(), 1500)  }
           </div>
           <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
             {[
-{ label: 'Ideas saved', value: ideasCount.toString(), sub: 'View in my ideas' },              { label: 'Outputs created', value: '0', sub: 'View all outputs' },
+              { label: 'Ideas saved', value: ideasCount.toString(), sub: 'View in my ideas' },
+              { label: 'Outputs created', value: '0', sub: 'View all outputs' },
               { label: 'Tasks this month', value: '0', sub: 'completed' },
             ].map((stat) => (
               <div key={stat.label} style={{ backgroundColor: 'white', border: '1px solid #d6cfc0', borderRadius: '12px', padding: '1rem 1.25rem' }}>
@@ -139,6 +149,21 @@ setTimeout(() => fetchIdeas(), 1500)  }
                   <div style={{ padding: '10px 14px', borderRadius: '12px', fontSize: '14px', backgroundColor: '#f5f0e8', color: '#888' }}>Thinking...</div>
                 </div>
               )}
+              {spreadsheetData && (
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <button
+                    onClick={() => {
+                      const ws = XLSX.utils.aoa_to_sheet([spreadsheetData.headers, ...spreadsheetData.rows])
+                      const wb = XLSX.utils.book_new()
+                      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
+                      XLSX.writeFile(wb, `${spreadsheetData.title}.xlsx`)
+                    }}
+                    style={{ backgroundColor: '#2d5a27', color: '#d4e8c2', border: 'none', borderRadius: '10px', padding: '10px 20px', fontSize: '13px', cursor: 'pointer', fontWeight: '500' }}
+                  >
+                    📊 Download {spreadsheetData.title}.xlsx
+                  </button>
+                </div>
+              )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#f5f0e8', border: '1px solid #d6cfc0', borderRadius: '8px', padding: '8px 12px' }}>
               <textarea
@@ -165,8 +190,9 @@ setTimeout(() => fetchIdeas(), 1500)  }
                 <div style={{ fontSize: '13px', fontWeight: '500', color: '#1a1a1a' }}>💡 Recent ideas</div>
                 <div style={{ fontSize: '12px', color: '#2d5a27', cursor: 'pointer' }}>See all →</div>
               </div>
-{ideas.length > 0 ? ideas.map((idea, index) => (
-<div key={index} style={{ padding: '8px 0', borderBottom: '1px solid #ede9de' }}>                  <div style={{ fontSize: '12px', color: '#333', marginBottom: '4px' }}>{idea.content}</div>
+              {ideas.length > 0 ? ideas.map((idea, index) => (
+                <div key={index} style={{ padding: '8px 0', borderBottom: '1px solid #ede9de' }}>
+                  <div style={{ fontSize: '12px', color: '#333', marginBottom: '4px' }}>{idea.content}</div>
                   <span style={{ fontSize: '10px', color: '#2d5a27', backgroundColor: '#eaf3de', padding: '2px 8px', borderRadius: '20px' }}>{idea.tag}</span>
                 </div>
               )) : (
