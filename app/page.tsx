@@ -2,19 +2,30 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+
 export default function Home() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<{role: string, content: string}[]>([])
   const [loading, setLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<any>(null)
+  const [ideas, setIdeas] = useState<any[]>([])
 
-useEffect(() => {
-  supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) window.location.href = '/login'
-    else setUser(data.user)
-  })
-}, [])
+  const fetchIdeas = async () => {
+    const { data } = await supabase.from('ideas').select('*').order('id', { ascending: false }).limit(3)
+    if (data) setIdeas(data)
+  }
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) window.location.href = '/login'
+      else {
+        setUser(data.user)
+        fetchIdeas()
+      }
+    })
+  }, [])
+
   const sendMessage = async () => {
     if (!input.trim()) return
     const userMessage = input
@@ -30,6 +41,15 @@ useEffect(() => {
     const data = await res.json()
     setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
     setLoading(false)
+
+    if (user) {
+      await supabase.from('ideas').insert({
+        content: userMessage,
+        tag: 'General',
+        user_id: user.id,
+      })
+      fetchIdeas()
+    }
   }
 
   return (
@@ -78,9 +98,10 @@ useEffect(() => {
           <div style={{ marginTop: 'auto', borderTop: '1px solid #d6cfc0', paddingTop: '12px' }}>
             <span style={{ backgroundColor: '#2d5a27', color: '#d4e8c2', fontSize: '10px', padding: '3px 8px', borderRadius: '20px' }}>Pro plan</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-<div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#c2dba8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600', color: '#2d5a27' }}>{user?.email?.slice(0,2).toUpperCase() || 'ME'}</div>              <div>
+              <div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#c2dba8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600', color: '#2d5a27' }}>{user?.email?.slice(0,2).toUpperCase() || 'ME'}</div>
+              <div>
                 <div style={{ fontSize: '12px', color: '#333' }}>{user?.email?.split('@')[0] || 'User'}</div>
-<div style={{ fontSize: '11px', color: '#888' }}>{user?.email || ''}</div>
+                <div style={{ fontSize: '11px', color: '#888' }}>{user?.email || ''}</div>
               </div>
             </div>
           </div>
@@ -94,14 +115,15 @@ useEffect(() => {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-Good morning, <span style={{ color: '#2d5a27' }}>{user?.email?.split('@')[0] || 'there'}</span> 👋            <div style={{ fontSize: '12px', color: '#888', backgroundColor: '#ede9de', padding: '5px 12px', borderRadius: '20px', whiteSpace: 'nowrap' }}>June 5 2026</div>
+            <div style={{ fontSize: '22px', fontWeight: '500', color: '#1a1a1a' }}>Good morning, <span style={{ color: '#2d5a27' }}>{user?.email?.split('@')[0] || 'there'}</span> 👋</div>
+            <div style={{ fontSize: '12px', color: '#888', backgroundColor: '#ede9de', padding: '5px 12px', borderRadius: '20px', whiteSpace: 'nowrap' }}>June 5 2026</div>
           </div>
 
           <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
             {[
-              { label: 'Ideas saved', value: '24', sub: 'View in my ideas' },
-              { label: 'Outputs created', value: '8', sub: 'View all outputs' },
-              { label: 'Tasks this month', value: '12', sub: 'completed' },
+              { label: 'Ideas saved', value: ideas.length.toString(), sub: 'View in my ideas' },
+              { label: 'Outputs created', value: '0', sub: 'View all outputs' },
+              { label: 'Tasks this month', value: '0', sub: 'completed' },
             ].map((stat) => (
               <div key={stat.label} style={{ backgroundColor: 'white', border: '1px solid #d6cfc0', borderRadius: '12px', padding: '1rem 1.25rem' }}>
                 <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>{stat.label}</div>
@@ -163,16 +185,14 @@ Good morning, <span style={{ color: '#2d5a27' }}>{user?.email?.split('@')[0] || 
                 <div style={{ fontSize: '13px', fontWeight: '500', color: '#1a1a1a' }}>💡 Recent ideas</div>
                 <div style={{ fontSize: '12px', color: '#2d5a27', cursor: 'pointer' }}>See all →</div>
               </div>
-              {[
-                { text: 'Post 3x a week, focus on behind the scenes', tag: 'Content' },
-                { text: 'Collab with another creator in same niche', tag: 'Growth' },
-                { text: 'Launch a monthly Q&A series', tag: 'Content' },
-              ].map((idea) => (
-                <div key={idea.text} style={{ padding: '8px 0', borderBottom: '1px solid #ede9de' }}>
-                  <div style={{ fontSize: '12px', color: '#333', marginBottom: '4px' }}>{idea.text}</div>
+              {ideas.length > 0 ? ideas.map((idea) => (
+                <div key={idea.id} style={{ padding: '8px 0', borderBottom: '1px solid #ede9de' }}>
+                  <div style={{ fontSize: '12px', color: '#333', marginBottom: '4px' }}>{idea.content}</div>
                   <span style={{ fontSize: '10px', color: '#2d5a27', backgroundColor: '#eaf3de', padding: '2px 8px', borderRadius: '20px' }}>{idea.tag}</span>
                 </div>
-              ))}
+              )) : (
+                <div style={{ fontSize: '12px', color: '#aaa', padding: '8px 0' }}>No ideas yet — start chatting!</div>
+              )}
             </div>
 
             <div style={{ backgroundColor: 'white', border: '1px solid #d6cfc0', borderRadius: '12px', padding: '1rem 1.25rem' }}>
@@ -180,19 +200,7 @@ Good morning, <span style={{ color: '#2d5a27' }}>{user?.email?.split('@')[0] || 
                 <div style={{ fontSize: '13px', fontWeight: '500', color: '#1a1a1a' }}>📄 Recent outputs</div>
                 <div style={{ fontSize: '12px', color: '#2d5a27', cursor: 'pointer' }}>See all →</div>
               </div>
-              {[
-                { name: 'June content calendar', date: '2 days ago', type: 'Calendar' },
-                { name: 'Weekly task plan', date: '4 days ago', type: 'Spreadsheet' },
-                { name: 'Q3 growth action plan', date: '1 week ago', type: 'Action plan' },
-              ].map((output) => (
-                <div key={output.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #ede9de' }}>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#333' }}>{output.name}</div>
-                    <div style={{ fontSize: '11px', color: '#aaa' }}>{output.date}</div>
-                  </div>
-                  <span style={{ fontSize: '10px', color: '#3b6d11', backgroundColor: '#eaf3de', padding: '2px 8px', borderRadius: '20px' }}>{output.type}</span>
-                </div>
-              ))}
+              <div style={{ fontSize: '12px', color: '#aaa', padding: '8px 0' }}>No outputs yet — ask the AI to make a plan!</div>
             </div>
           </div>
         </div>
