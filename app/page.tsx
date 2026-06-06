@@ -88,8 +88,7 @@ export default function Home() {
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>📅 Content calendar</div>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>📄 Action plans</div>
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Premium</p>
-          <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#7a5c10', fontSize: '14px', cursor: 'pointer', backgroundColor: '#fdf6e3' }}>🎬 Video analysis</div>
-          <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Account</p>
+<div onClick={() => window.location.href = '/video'} style={{ padding: '8px 10px', borderRadius: '8px', color: '#7a5c10', fontSize: '14px', cursor: 'pointer', backgroundColor: '#fdf6e3' }}>🎬 Video analysis</div>          <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Account</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>💳 Billing</div>
           <div onClick={async () => { await supabase.auth.signOut(); window.location.href = '/landing'; }} style={{ padding: '8px 10px', borderRadius: '8px', color: '#e53e3e', fontSize: '14px', cursor: 'pointer' }}>🚪 Sign out</div>
           <div style={{ marginTop: 'auto', borderTop: '1px solid #d6cfc0', paddingTop: '12px' }}>
