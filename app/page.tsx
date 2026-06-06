@@ -21,8 +21,8 @@ const [ideasCount, setIdeasCount] = useState(0)
   }
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) window.location.href = '/login'
-      else {
+if (!data.user) window.location.href = '/landing'     
+ else {
         setUser(data.user)
         fetchIdeas()
       }
@@ -165,8 +165,7 @@ setTimeout(() => fetchIdeas(), 1500)  }
                 <div style={{ fontSize: '12px', color: '#2d5a27', cursor: 'pointer' }}>See all →</div>
               </div>
 {ideas.length > 0 ? ideas.map((idea, index) => (
-                  <div key={idea.id} style={{ padding: '8px 0', borderBottom: '1px solid #ede9de' }}>
-                  <div style={{ fontSize: '12px', color: '#333', marginBottom: '4px' }}>{idea.content}</div>
+<div key={index} style={{ padding: '8px 0', borderBottom: '1px solid #ede9de' }}>                  <div style={{ fontSize: '12px', color: '#333', marginBottom: '4px' }}>{idea.content}</div>
                   <span style={{ fontSize: '10px', color: '#2d5a27', backgroundColor: '#eaf3de', padding: '2px 8px', borderRadius: '20px' }}>{idea.tag}</span>
                 </div>
               )) : (
