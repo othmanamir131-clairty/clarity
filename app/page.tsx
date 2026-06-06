@@ -11,11 +11,14 @@ export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [ideas, setIdeas] = useState<any[]>([])
 
-  const fetchIdeas = async () => {
-    const { data } = await supabase.from('ideas').select('*').order('id', { ascending: false }).limit(3)
-    if (data) setIdeas(data)
-  }
+const [ideasCount, setIdeasCount] = useState(0)
 
+  const fetchIdeas = async () => {
+    const { data } = await supabase.from('ideas').select('*').order('created_at', { ascending: false }).limit(3)
+    if (data) setIdeas(data)
+    const { count } = await supabase.from('ideas').select('*', { count: 'exact', head: true })
+    if (count !== null) setIdeasCount(count)
+  }
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) window.location.href = '/login'
@@ -32,25 +35,16 @@ export default function Home() {
     setInput('')
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setLoading(true)
-
+    const { data: authData } = await supabase.auth.getUser()
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: userMessage }),
+      body: JSON.stringify({ message: userMessage, userId: authData?.user?.id }),
     })
     const data = await res.json()
     setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
     setLoading(false)
-
-    if (user) {
-      await supabase.from('ideas').insert({
-        content: userMessage,
-        tag: 'General',
-        user_id: user.id,
-      })
-      fetchIdeas()
-    }
-  }
+setTimeout(() => fetchIdeas(), 1500)  }
 
   return (
     <>
@@ -72,29 +66,22 @@ export default function Home() {
           .bottom-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
-
       <div className="app">
         {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
-        
         <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div style={{ fontSize: '20px', fontWeight: '600', color: '#2d5a27', marginBottom: '1.5rem', paddingLeft: '8px' }}>✦ Clarity</div>
-          
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Main</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', backgroundColor: '#d4e8c2', color: '#2d5a27', fontWeight: '500', fontSize: '14px', cursor: 'pointer' }}>📊 Dashboard</div>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>💡 My ideas</div>
-
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Outputs</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>📋 Spreadsheets</div>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>📅 Content calendar</div>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>📄 Action plans</div>
-
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Premium</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#7a5c10', fontSize: '14px', cursor: 'pointer', backgroundColor: '#fdf6e3' }}>🎬 Video analysis</div>
-
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Account</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>💳 Billing</div>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>⚙️ Settings</div>
-
           <div style={{ marginTop: 'auto', borderTop: '1px solid #d6cfc0', paddingTop: '12px' }}>
             <span style={{ backgroundColor: '#2d5a27', color: '#d4e8c2', fontSize: '10px', padding: '3px 8px', borderRadius: '20px' }}>Pro plan</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
@@ -106,23 +93,19 @@ export default function Home() {
             </div>
           </div>
         </div>
-
         <div className="main">
           <div className="mobile-header">
             <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
             <div style={{ fontSize: '18px', fontWeight: '600', color: '#2d5a27' }}>✦ Clarity</div>
             <div style={{ width: '32px' }} />
           </div>
-
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: '22px', fontWeight: '500', color: '#1a1a1a' }}>Good morning, <span style={{ color: '#2d5a27' }}>{user?.email?.split('@')[0] || 'there'}</span> 👋</div>
             <div style={{ fontSize: '12px', color: '#888', backgroundColor: '#ede9de', padding: '5px 12px', borderRadius: '20px', whiteSpace: 'nowrap' }}>June 5 2026</div>
           </div>
-
           <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
             {[
-              { label: 'Ideas saved', value: ideas.length.toString(), sub: 'View in my ideas' },
-              { label: 'Outputs created', value: '0', sub: 'View all outputs' },
+{ label: 'Ideas saved', value: ideasCount.toString(), sub: 'View in my ideas' },              { label: 'Outputs created', value: '0', sub: 'View all outputs' },
               { label: 'Tasks this month', value: '0', sub: 'completed' },
             ].map((stat) => (
               <div key={stat.label} style={{ backgroundColor: 'white', border: '1px solid #d6cfc0', borderRadius: '12px', padding: '1rem 1.25rem' }}>
@@ -132,13 +115,11 @@ export default function Home() {
               </div>
             ))}
           </div>
-
           <div style={{ backgroundColor: 'white', border: '1px solid #d6cfc0', borderRadius: '12px', padding: '1.25rem', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#2d5a27' }}></div>
               <div style={{ fontSize: '14px', fontWeight: '500', color: '#1a1a1a' }}>What's on your mind?</div>
             </div>
-
             <div style={{ minHeight: '200px', marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {messages.length === 0 && (
                 <div style={{ color: '#aaa', fontSize: '14px', padding: '1rem 0' }}>Start by dumping your ideas, tasks, or goals below...</div>
@@ -158,7 +139,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#f5f0e8', border: '1px solid #d6cfc0', borderRadius: '8px', padding: '8px 12px' }}>
               <textarea
                 value={input}
@@ -178,15 +158,14 @@ export default function Home() {
               ))}
             </div>
           </div>
-
           <div className="bottom-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
             <div style={{ backgroundColor: 'white', border: '1px solid #d6cfc0', borderRadius: '12px', padding: '1rem 1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <div style={{ fontSize: '13px', fontWeight: '500', color: '#1a1a1a' }}>💡 Recent ideas</div>
                 <div style={{ fontSize: '12px', color: '#2d5a27', cursor: 'pointer' }}>See all →</div>
               </div>
-              {ideas.length > 0 ? ideas.map((idea) => (
-                <div key={idea.id} style={{ padding: '8px 0', borderBottom: '1px solid #ede9de' }}>
+{ideas.length > 0 ? ideas.map((idea, index) => (
+                  <div key={idea.id} style={{ padding: '8px 0', borderBottom: '1px solid #ede9de' }}>
                   <div style={{ fontSize: '12px', color: '#333', marginBottom: '4px' }}>{idea.content}</div>
                   <span style={{ fontSize: '10px', color: '#2d5a27', backgroundColor: '#eaf3de', padding: '2px 8px', borderRadius: '20px' }}>{idea.tag}</span>
                 </div>
@@ -194,7 +173,6 @@ export default function Home() {
                 <div style={{ fontSize: '12px', color: '#aaa', padding: '8px 0' }}>No ideas yet — start chatting!</div>
               )}
             </div>
-
             <div style={{ backgroundColor: 'white', border: '1px solid #d6cfc0', borderRadius: '12px', padding: '1rem 1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <div style={{ fontSize: '13px', fontWeight: '500', color: '#1a1a1a' }}>📄 Recent outputs</div>

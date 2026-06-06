@@ -2,13 +2,27 @@ export const maxDuration = 30
 
 import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
 export async function POST(request: NextRequest) {
-  const { message } = await request.json()
+  const { message, userId } = await request.json()
+
+  if (userId) {
+    await supabase.from('ideas').insert({
+      content: message,
+      tag: 'General',
+      user_id: userId,
+    })
+  }
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
