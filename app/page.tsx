@@ -81,8 +81,7 @@ setTimeout(() => fetchIdeas(), 1500)  }
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#7a5c10', fontSize: '14px', cursor: 'pointer', backgroundColor: '#fdf6e3' }}>🎬 Video analysis</div>
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Account</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>💳 Billing</div>
-          <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>⚙️ Settings</div>
-          <div style={{ marginTop: 'auto', borderTop: '1px solid #d6cfc0', paddingTop: '12px' }}>
+<div onClick={async () => { await supabase.auth.signOut(); window.location.href = '/landing'; }} style={{ padding: '8px 10px', borderRadius: '8px', color: '#e53e3e', fontSize: '14px', cursor: 'pointer' }}>🚪 Sign out</div>          <div style={{ marginTop: 'auto', borderTop: '1px solid #d6cfc0', paddingTop: '12px' }}>
             <span style={{ backgroundColor: '#2d5a27', color: '#d4e8c2', fontSize: '10px', padding: '3px 8px', borderRadius: '20px' }}>Pro plan</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
               <div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#c2dba8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600', color: '#2d5a27' }}>{user?.email?.slice(0,2).toUpperCase() || 'ME'}</div>
