@@ -80,8 +80,7 @@ export default function Home() {
           <div style={{ fontSize: '20px', fontWeight: '600', color: '#2d5a27', marginBottom: '1.5rem', paddingLeft: '8px' }}>✦ Clarity</div>
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Main</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', backgroundColor: '#d4e8c2', color: '#2d5a27', fontWeight: '500', fontSize: '14px', cursor: 'pointer' }}>📊 Dashboard</div>
-          <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>💡 My ideas</div>
-          <div onClick={() => window.location.href = '/report'} style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>✨ Clarity Score</div>
+<div onClick={() => window.location.href = '/ideas'} style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>💡 My ideas</div>          <div onClick={() => window.location.href = '/report'} style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>✨ Clarity Score</div>
           <div onClick={() => window.location.href = '/content'} style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>⚡ Content Tools</div>
           <p style={{ fontSize: '10px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 8px 4px' }}>Outputs</p>
           <div style={{ padding: '8px 10px', borderRadius: '8px', color: '#4a4a4a', fontSize: '14px', cursor: 'pointer' }}>📋 Spreadsheets</div>
