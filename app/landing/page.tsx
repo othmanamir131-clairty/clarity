@@ -3,282 +3,473 @@
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
+// ============================================================
+// OPTION 2 — "BOLD & ELECTRIC"
+// Vibe: Pure white background, GIANT black headings,
+// electric purple/mint accent pops, very Vercel/Stripe energy.
+// Feels powerful, authoritative, and modern.
+// ============================================================
+
 export default function Landing() {
   const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
+  const [count, setCount] = useState(0)
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50)
+    const handleScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    // Animated counter
+    const interval = setInterval(() => {
+      setCount(c => { if (c >= 2847) { clearInterval(interval); return 2847; } return c + 37; })
+    }, 20)
+    return () => { window.removeEventListener('scroll', handleScroll); clearInterval(interval); }
   }, [])
 
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f0e8; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes float1 { 0%, 100% { transform: translateY(0px) rotate(-2deg); } 50% { transform: translateY(-14px) rotate(2deg); } }
-        @keyframes float2 { 0%, 100% { transform: translateY(0px) rotate(3deg); } 50% { transform: translateY(-10px) rotate(-1deg); } }
-        @keyframes float3 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
-        .btn-main { transition: all 0.2s ease; }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-        .btn-outline { transition: all 0.2s ease; }
-        .btn-outline:hover { background: #1a1a2e !important; color: white !important; }
-        .feature-row { transition: all 0.2s ease; }
-        .feature-row:hover { transform: translateX(6px); }
-        .pricing-card { transition: all 0.25s ease; }
-        .pricing-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px rgba(0,0,0,0.1); }
-        .nav-sticky { position: fixed; top: 0; left: 0; right: 0; z-index: 100; transition: all 0.3s ease; }
-        @media (max-width: 768px) {
-          .hero-title { font-size: 48px !important; letter-spacing: -2px !important; }
-          .hero-grid { grid-template-columns: 1fr !important; }
-          .features-layout { flex-direction: column !important; }
-          .pricing-grid { grid-template-columns: 1fr !important; }
-          .nav-links { display: none !important; }
-          .circles-area { display: none !important; }
-          .quote-big { font-size: 36px !important; }
-          .cta-big { font-size: 40px !important; }
+        :root {
+          --white: #ffffff;
+          --off-white: #f9f9f9;
+          --black: #0a0a0a;
+          --purple: #7c3aed;
+          --purple-light: #ede9fe;
+          --mint: #10b981;
+          --mint-light: #d1fae5;
+          --pink: #ec4899;
+          --gray: #6b7280;
+          --border: #e5e7eb;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--black); }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideRight {
+          from { opacity: 0; transform: translateX(-20px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes floatY {
+          0%,100% { transform: translateY(0); }
+          50%      { transform: translateY(-10px); }
+        }
+        @keyframes dotPulse {
+          0%,100% { transform: scale(1); opacity: 1; }
+          50%      { transform: scale(1.4); opacity: 0.5; }
+        }
+        @keyframes scaleIn {
+          from { transform: scale(0.85); opacity: 0; }
+          to   { transform: scale(1); opacity: 1; }
+        }
+
+        /* NAV */
+        .nav {
+          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 1.25rem 4rem;
+          transition: all 0.3s ease;
+        }
+        .nav.scrolled {
+          background: rgba(255,255,255,0.94);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid var(--border);
+        }
+        .nav-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--black); letter-spacing: -0.5px; }
+        .nav-links { display: flex; gap: 2.5rem; font-size: 14px; color: var(--gray); font-weight: 500; }
+        .nav-links span { cursor: pointer; transition: color 0.2s; }
+        .nav-links span:hover { color: var(--black); }
+        .btn-nav-primary {
+          background: var(--black); color: white; border: none;
+          border-radius: 6px; padding: 9px 22px;
+          font-size: 14px; font-weight: 600; cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          transition: all 0.2s ease;
+        }
+        .btn-nav-primary:hover { background: var(--purple); }
+
+        /* HERO */
+        .hero-section {
+          min-height: 100vh;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          text-align: center;
+          padding: 10rem 3rem 5rem;
+          position: relative; overflow: hidden;
+        }
+        .hero-noise {
+          position: absolute; inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+          pointer-events: none;
+        }
+        .hero-tag {
+          display: inline-flex; align-items: center; gap: 8px;
+          border: 1px solid var(--border); border-radius: 100px;
+          padding: 6px 16px; font-size: 13px;
+          color: var(--gray); font-weight: 500; margin-bottom: 2.5rem;
+          background: white;
+          animation: fadeUp 0.6s ease forwards;
+        }
+        .hero-tag-dot {
+          width: 6px; height: 6px; border-radius: 50%;
+          background: var(--mint); animation: dotPulse 2s ease infinite;
+        }
+        .hero-h1 {
+          font-family: 'Syne', sans-serif;
+          font-size: 96px; font-weight: 800;
+          line-height: 0.95; letter-spacing: -5px;
+          color: var(--black); margin-bottom: 2rem;
+          animation: fadeUp 0.7s ease 0.1s both;
+          max-width: 900px;
+        }
+        .hero-h1 .accent { color: var(--purple); }
+        .hero-h1 .underline-mint {
+          text-decoration: underline;
+          text-decoration-color: var(--mint);
+          text-underline-offset: 8px;
+          text-decoration-thickness: 4px;
+        }
+        .hero-sub {
+          font-size: 19px; color: var(--gray);
+          line-height: 1.7; max-width: 540px;
+          margin: 0 auto 3rem;
+          animation: fadeUp 0.7s ease 0.2s both;
+        }
+        .hero-sub strong { color: var(--black); }
+        .hero-btns {
+          display: flex; gap: 14px; justify-content: center;
+          flex-wrap: wrap; margin-bottom: 2rem;
+          animation: fadeUp 0.7s ease 0.3s both;
+        }
+        .btn-xl-primary {
+          background: var(--black); color: white; border: none;
+          border-radius: 8px; padding: 18px 40px;
+          font-size: 17px; font-weight: 700; cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          transition: all 0.2s ease;
+        }
+        .btn-xl-primary:hover { background: var(--purple); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,0.35); }
+        .btn-xl-ghost {
+          background: white; color: var(--black);
+          border: 1.5px solid var(--border);
+          border-radius: 8px; padding: 17px 32px;
+          font-size: 17px; font-weight: 600; cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          transition: all 0.2s ease;
+        }
+        .btn-xl-ghost:hover { border-color: var(--black); transform: translateY(-2px); }
+        .hero-note { font-size: 13px; color: #bbb; animation: fadeUp 0.7s ease 0.4s both; }
+
+        /* LIVE COUNTER STRIP */
+        .counter-strip {
+          background: var(--off-white);
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+          padding: 1.5rem 4rem;
+          display: flex; align-items: center; justify-content: center;
+          gap: 3rem; flex-wrap: wrap;
+        }
+        .counter-item { text-align: center; }
+        .counter-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--black); letter-spacing: -1px; }
+        .counter-label { font-size: 13px; color: var(--gray); font-weight: 500; margin-top: 2px; }
+        .counter-divider { width: 1px; height: 40px; background: var(--border); }
+
+        /* BENTO GRID */
+        .bento { background: var(--off-white); padding: 6rem 4rem; }
+        .bento-inner { max-width: 1100px; margin: 0 auto; }
+        .bento-label { font-size: 12px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+        .bento-title { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; color: var(--black); letter-spacing: -2.5px; margin-bottom: 3.5rem; line-height: 1.05; }
+        .bento-title span { color: var(--purple); }
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 16px; }
+
+        .bento-card {
+          background: white; border-radius: 20px;
+          padding: 2rem; border: 1px solid var(--border);
+          transition: all 0.25s ease; overflow: hidden;
+          position: relative;
+        }
+        .bento-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); border-color: transparent; }
+        .bento-card.tall { grid-row: span 2; }
+        .bento-card.accent-purple { background: var(--purple); border-color: var(--purple); }
+        .bento-card.accent-mint { background: linear-gradient(135deg, #059669, #10b981); border-color: transparent; }
+        .bento-card.accent-dark { background: var(--black); border-color: var(--black); }
+
+        .bento-icon { font-size: 32px; margin-bottom: 14px; }
+        .bento-card-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--black); letter-spacing: -0.5px; margin-bottom: 8px; }
+        .bento-card.accent-purple .bento-card-title,
+        .bento-card.accent-mint .bento-card-title,
+        .bento-card.accent-dark .bento-card-title { color: white; }
+        .bento-card-desc { font-size: 14px; color: var(--gray); line-height: 1.65; }
+        .bento-card.accent-purple .bento-card-desc { color: rgba(255,255,255,0.65); }
+        .bento-card.accent-mint .bento-card-desc { color: rgba(255,255,255,0.7); }
+        .bento-card.accent-dark .bento-card-desc { color: rgba(255,255,255,0.5); }
+
+        .bento-tag {
+          display: inline-block; font-size: 10px; font-weight: 700;
+          padding: 3px 10px; border-radius: 100px;
+          text-transform: uppercase; letter-spacing: 0.06em;
+          margin-bottom: 10px;
+        }
+
+        /* QUOTE */
+        .quote-belt { background: var(--black); padding: 6rem 4rem; }
+        .quote-belt-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+        .qb-pre { font-size: 12px; font-weight: 700; color: var(--mint); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 1.5rem; }
+        .qb-h { font-family: 'Syne', sans-serif; font-size: 56px; font-weight: 800; color: white; letter-spacing: -2px; line-height: 1.1; margin-bottom: 1.5rem; }
+        .qb-h em { font-style: normal; color: var(--mint); }
+        .qb-sub { font-size: 18px; color: rgba(255,255,255,0.4); line-height: 1.7; margin-bottom: 3.5rem; }
+        .qb-stats { display: flex; justify-content: center; gap: 5rem; flex-wrap: wrap; }
+        .qb-stat-num { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: white; letter-spacing: -1.5px; }
+        .qb-stat-label { font-size: 13px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+        /* PRICING */
+        .pricing-belt { background: white; padding: 7rem 4rem; }
+        .pricing-belt-inner { max-width: 980px; margin: 0 auto; }
+        .pricing-hd { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; color: var(--black); letter-spacing: -2.5px; margin-bottom: 1rem; line-height: 1.05; }
+        .pricing-hd span { color: var(--purple); }
+        .pricing-sub { font-size: 17px; color: var(--gray); margin-bottom: 4rem; }
+        .pricing-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .pc {
+          border-radius: 20px; padding: 2.25rem;
+          border: 1.5px solid var(--border);
+          transition: all 0.25s ease; position: relative;
+        }
+        .pc:hover { transform: translateY(-5px); box-shadow: 0 20px 48px rgba(0,0,0,0.08); }
+        .pc.pc-featured { background: var(--black); border-color: var(--black); box-shadow: 0 20px 56px rgba(0,0,0,0.2); }
+        .pc-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--purple); color: white; font-size: 11px; font-weight: 700; padding: 5px 16px; border-radius: 100px; white-space: nowrap; }
+        .pc-tier { font-size: 12px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+        .pc-featured .pc-tier { color: rgba(255,255,255,0.35); }
+        .pc-price { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; color: var(--black); letter-spacing: -2px; line-height: 1; margin-bottom: 4px; }
+        .pc-featured .pc-price { color: white; }
+        .pc-period { font-size: 16px; font-family: 'Inter', sans-serif; font-weight: 500; color: var(--gray); }
+        .pc-featured .pc-period { color: rgba(255,255,255,0.35); }
+        .pc-desc { font-size: 14px; color: var(--gray); margin-bottom: 1.75rem; }
+        .pc-featured .pc-desc { color: rgba(255,255,255,0.4); }
+        .pc-features-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem; }
+        .pc-features-list li { font-size: 14px; color: #444; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .pc-featured .pc-features-list li { color: rgba(255,255,255,0.75); }
+        .pc-btn {
+          width: 100%; background: var(--black); color: white;
+          border: none; border-radius: 8px; padding: 13px;
+          font-size: 15px; font-weight: 700; cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          transition: all 0.2s ease;
+        }
+        .pc-btn:hover { background: var(--purple); transform: translateY(-2px); }
+        .pc-featured .pc-btn { background: var(--purple); }
+        .pc-featured .pc-btn:hover { background: #6d28d9; }
+        .pc-features-list li::before { content: '→'; color: var(--mint); font-weight: 800; }
+        .pc-featured .pc-features-list li::before { color: var(--mint); }
+
+        /* CTA */
+        .cta-belt { background: var(--off-white); padding: 8rem 4rem; text-align: center; }
+        .cta-belt-inner { max-width: 680px; margin: 0 auto; }
+        .cta-h { font-family: 'Syne', sans-serif; font-size: 64px; font-weight: 800; color: var(--black); letter-spacing: -3px; line-height: 1.03; margin-bottom: 1.5rem; }
+        .cta-h span { color: var(--purple); }
+        .cta-sub { font-size: 18px; color: var(--gray); line-height: 1.7; margin-bottom: 2.5rem; }
+        .cta-note { margin-top: 1.25rem; font-size: 13px; color: #bbb; }
+
+        /* FOOTER */
+        .footer { background: var(--black); padding: 2.5rem 4rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .footer-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: white; }
+        .footer-copy { font-size: 13px; color: rgba(255,255,255,0.3); }
+        .footer-links { display: flex; gap: 1.5rem; font-size: 13px; color: rgba(255,255,255,0.3); }
+        .footer-links span { cursor: pointer; transition: color 0.2s; }
+        .footer-links span:hover { color: white; }
+
+        @media (max-width: 900px) {
+          .hero-h1 { font-size: 52px; letter-spacing: -2.5px; }
+          .nav { padding: 1rem 1.5rem; }
+          .nav-links { display: none; }
+          .counter-strip { padding: 1.5rem; gap: 1.5rem; }
+          .bento { padding: 4rem 1.5rem; }
+          .bento-grid { grid-template-columns: 1fr; }
+          .bento-card.tall { grid-row: span 1; }
+          .bento-title { font-size: 36px; letter-spacing: -1.5px; }
+          .quote-belt { padding: 5rem 1.5rem; }
+          .qb-h { font-size: 36px; letter-spacing: -1px; }
+          .pricing-belt { padding: 5rem 1.5rem; }
+          .pricing-row { grid-template-columns: 1fr; }
+          .pricing-hd { font-size: 36px; }
+          .cta-belt { padding: 5rem 1.5rem; }
+          .cta-h { font-size: 40px; letter-spacing: -2px; }
+          .footer { padding: 2rem 1.5rem; }
         }
       `}</style>
 
-      {/* Nav */}
-      <nav className="nav-sticky" style={{ backgroundColor: scrolled ? 'rgba(245,240,232,0.95)' : 'transparent', backdropFilter: scrolled ? 'blur(12px)' : 'none', borderBottom: scrolled ? '1px solid rgba(0,0,0,0.06)' : 'none', padding: '1.25rem 4rem' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a1a2e', letterSpacing: '-0.5px' }}>✦ Clarity</div>
-          <div className="nav-links" style={{ display: 'flex', gap: '2.5rem', fontSize: '15px', color: '#666', fontWeight: '500' }}>
-            <span style={{ cursor: 'pointer' }}>Product</span>
-            <span style={{ cursor: 'pointer' }}>Pricing</span>
-            <span style={{ cursor: 'pointer' }}>About</span>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <button onClick={() => router.push('/login')} style={{ background: 'none', border: 'none', fontSize: '15px', cursor: 'pointer', color: '#1a1a2e', fontWeight: '500' }}>Log in</button>
-            <button className="btn-main" onClick={() => router.push('/login')} style={{ background: '#1a1a2e', border: 'none', borderRadius: '100px', padding: '10px 24px', fontSize: '15px', cursor: 'pointer', color: 'white', fontWeight: '600' }}>Get started</button>
-          </div>
+      {/* NAV */}
+      <nav className={`nav ${scrolled ? 'scrolled' : ''}`}>
+        <div className="nav-logo">✦ Clarity</div>
+        <div className="nav-links">
+          <span>Product</span><span>Pricing</span><span>About</span>
+        </div>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button onClick={() => router.push('/login')} style={{ background: 'none', border: 'none', fontSize: '14px', cursor: 'pointer', color: 'var(--gray)', fontWeight: '500', fontFamily: "'Inter', sans-serif" }}>Log in</button>
+          <button className="btn-nav-primary" onClick={() => router.push('/login')}>Get started →</button>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section style={{ minHeight: '100vh', backgroundColor: '#f5f0e8', display: 'flex', alignItems: 'center', padding: '8rem 4rem 4rem', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
-          <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }}>
+      {/* HERO */}
+      <section className="hero-section">
+        <div className="hero-noise"></div>
+        <div className="hero-tag">
+          <span className="hero-tag-dot"></span>
+          AI-powered organization for content creators
+        </div>
+        <h1 className="hero-h1">
+          Stop <span className="accent">losing</span><br />
+          your <span className="underline-mint">best ideas.</span>
+        </h1>
+        <p className="hero-sub">
+          Dump your thoughts into Clarity. The AI organizes everything and turns it into <strong>action plans, content calendars, and spreadsheets</strong> — instantly.
+        </p>
+        <div className="hero-btns">
+          <button className="btn-xl-primary" onClick={() => router.push('/login')}>Start for free — no card needed</button>
+          <button className="btn-xl-ghost" onClick={() => router.push('/login')}>See features ↓</button>
+        </div>
+        <p className="hero-note">Free forever plan · Takes 30 seconds to set up</p>
+      </section>
 
-            {/* Left */}
-            <div style={{ animation: 'fadeUp 0.8s ease forwards' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'white', borderRadius: '100px', padding: '6px 16px', fontSize: '13px', color: '#7c3aed', fontWeight: '600', marginBottom: '2rem', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#7c3aed', display: 'inline-block', animation: 'pulse 2s ease infinite' }}></span>
-                AI powered organization for creators
+      {/* COUNTER STRIP */}
+      <div className="counter-strip">
+        {[
+          { num: `${count.toLocaleString()}+`, label: 'Ideas organized' },
+          { num: '6', label: 'AI-powered tools' },
+          { num: '< 5s', label: 'To generate a plan' },
+          { num: '100%', label: 'Built for creators' },
+        ].map((item, i) => (
+          <>
+            <div key={item.label} className="counter-item">
+              <div className="counter-num">{item.num}</div>
+              <div className="counter-label">{item.label}</div>
+            </div>
+            {i < 3 && <div key={`div-${i}`} className="counter-divider"></div>}
+          </>
+        ))}
+      </div>
+
+      {/* BENTO GRID */}
+      <section className="bento">
+        <div className="bento-inner">
+          <p className="bento-label">What's inside</p>
+          <h2 className="bento-title">Six tools.<br />One <span>place.</span></h2>
+          <div className="bento-grid">
+            <div className="bento-card accent-purple tall">
+              <div className="bento-icon">🧠</div>
+              <div className="bento-tag" style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}>CORE</div>
+              <div className="bento-card-title">AI Brain Dump</div>
+              <div className="bento-card-desc">Type anything — messy thoughts, random ideas, big goals. The AI organizes it all instantly. No folders, no structure needed.</div>
+              <div style={{ marginTop: '1.5rem', background: 'rgba(255,255,255,0.1)', borderRadius: '14px', padding: '14px 16px' }}>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '6px' }}>Example</div>
+                <div style={{ fontSize: '14px', color: 'white', fontWeight: '600', lineHeight: '1.5' }}>"I need a content calendar for my fitness TikTok, posting 4x/week, targeting 18-25 year olds"</div>
               </div>
-              <h1 className="hero-title" style={{ fontSize: '68px', fontWeight: '900', color: '#1a1a2e', lineHeight: '1.02', letterSpacing: '-3px', marginBottom: '1.5rem' }}>
-                One place for<br />
-                everything on<br />
-                <span style={{ color: '#7c3aed' }}>your mind.</span>
-              </h1>
-              <p style={{ fontSize: '18px', color: '#666', lineHeight: '1.7', marginBottom: '2.5rem', maxWidth: '420px' }}>
-                Dump your ideas, goals, and content plans into Clarity — and get it all organized, actionable, and ready to go.
-              </p>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <button className="btn-main" onClick={() => router.push('/login')} style={{ background: '#1a1a2e', border: 'none', borderRadius: '100px', padding: '16px 32px', fontSize: '16px', cursor: 'pointer', color: 'white', fontWeight: '700' }}>
-                  Get Clarity free
-                </button>
-                <button className="btn-outline" onClick={() => router.push('/login')} style={{ background: 'none', border: '1.5px solid #1a1a2e', borderRadius: '100px', padding: '15px 28px', fontSize: '16px', cursor: 'pointer', color: '#1a1a2e', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  ▶ See how it works
-                </button>
-              </div>
-              <div style={{ marginTop: '1.5rem', fontSize: '13px', color: '#aaa' }}>Free forever plan · No credit card required</div>
             </div>
 
-            {/* Right — circles like Mem */}
-            <div className="circles-area" style={{ position: 'relative', height: '520px' }}>
-              {/* Big purple circle */}
-              <div style={{ position: 'absolute', top: '0', left: '10%', width: '280px', height: '280px', borderRadius: '50%', backgroundColor: '#7c3aed', animation: 'float1 5s ease-in-out infinite', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                <div style={{ backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px 24px', maxWidth: '200px' }}>
-                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginBottom: '8px', fontWeight: '500' }}>AI Brain Dump</div>
-                  <div style={{ fontSize: '15px', color: 'white', fontWeight: '700', lineHeight: '1.4' }}>"Make me a content calendar for my fitness page"</div>
-                </div>
-              </div>
+            <div className="bento-card">
+              <div className="bento-icon">✨</div>
+              <div className="bento-tag" style={{ background: 'var(--purple-light)', color: 'var(--purple)' }}>UNIQUE</div>
+              <div className="bento-card-title">Clarity Score</div>
+              <div className="bento-card-desc">Weekly AI report on your ideas, themes, and top priorities. Your personal coach that actually knows your goals.</div>
+            </div>
 
-              {/* Mint green circle */}
-              <div style={{ position: 'absolute', bottom: '5%', left: '0%', width: '220px', height: '220px', borderRadius: '50%', backgroundColor: '#34d399', animation: 'float2 4s ease-in-out infinite', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '36px', marginBottom: '6px' }}>✨</div>
-                  <div style={{ fontSize: '14px', color: 'white', fontWeight: '800' }}>Clarity Score</div>
-                  <div style={{ fontSize: '32px', fontWeight: '900', color: 'white' }}>87</div>
-                </div>
-              </div>
+            <div className="bento-card">
+              <div className="bento-icon">📊</div>
+              <div className="bento-tag" style={{ background: 'var(--mint-light)', color: 'var(--mint)' }}>SAVE TIME</div>
+              <div className="bento-card-title">Instant Spreadsheets</div>
+              <div className="bento-card-desc">Ask for any spreadsheet and download a real Excel file in seconds. No templates, no setup.</div>
+            </div>
 
-              {/* Cream/beige circle */}
-              <div style={{ position: 'absolute', top: '10%', right: '0%', width: '180px', height: '180px', borderRadius: '50%', backgroundColor: '#e8e0d0', animation: 'float3 6s ease-in-out infinite', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ textAlign: 'center', padding: '20px' }}>
-                  <div style={{ fontSize: '13px', color: '#888', fontWeight: '600', marginBottom: '4px' }}>Ideas saved</div>
-                  <div style={{ fontSize: '36px', fontWeight: '900', color: '#1a1a2e' }}>24</div>
-                  <div style={{ fontSize: '11px', color: '#7c3aed', fontWeight: '600' }}>this week</div>
-                </div>
-              </div>
+            <div className="bento-card accent-dark">
+              <div className="bento-icon">🎬</div>
+              <div className="bento-tag" style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>PREMIUM</div>
+              <div className="bento-card-title">Video Analysis</div>
+              <div className="bento-card-desc">Paste any YouTube URL — get hooks, ideas, hashtags, and a full content strategy instantly.</div>
+            </div>
 
-              {/* White card floating */}
-              <div style={{ position: 'absolute', bottom: '15%', right: '5%', backgroundColor: 'white', borderRadius: '20px', padding: '16px 20px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', animation: 'float2 7s ease-in-out infinite', maxWidth: '200px' }}>
-                <div style={{ fontSize: '11px', color: '#7c3aed', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>⚡ Content Tools</div>
-                <div style={{ fontSize: '13px', color: '#1a1a2e', fontWeight: '600', lineHeight: '1.4' }}>30 hashtags generated for your fitness niche</div>
-              </div>
+            <div className="bento-card accent-mint">
+              <div className="bento-icon">⚡</div>
+              <div className="bento-tag" style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}>CREATOR TOOLS</div>
+              <div className="bento-card-title">Content Tools</div>
+              <div className="bento-card-desc">Caption writer, hashtag generator, and hook creator. Three tools built for daily creators.</div>
+            </div>
+
+            <div className="bento-card">
+              <div className="bento-icon">💡</div>
+              <div className="bento-tag" style={{ background: '#fef3c7', color: '#d97706' }}>NEVER LOSE IDEAS</div>
+              <div className="bento-card-title">Ideas Library</div>
+              <div className="bento-card-desc">Every idea you save lives here. Click any idea and get an AI deep dive with next steps.</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* "Remembering is so yesterday" style section */}
-      <section style={{ backgroundColor: '#f5f0e8', padding: '6rem 4rem', textAlign: 'center' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <div style={{ fontSize: '13px', fontWeight: '700', color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1.5rem' }}>Why Clarity</div>
-          <h2 style={{ fontSize: '56px', fontWeight: '900', color: '#1a1a2e', lineHeight: '1.08', letterSpacing: '-2px', marginBottom: '1.5rem' }}>
-            Stop planning.<br />Start creating.
-          </h2>
-          <p style={{ fontSize: '20px', color: '#666', lineHeight: '1.7', maxWidth: '560px', margin: '0 auto 3rem' }}>
-            You spend hours every week organizing ideas that never get acted on. Clarity changes that — the AI does the organizing so you can focus on creating.
-          </p>
-
-          {/* Mock chat UI like Mem */}
-          <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '2rem', boxShadow: '0 8px 40px rgba(0,0,0,0.08)', maxWidth: '560px', margin: '0 auto', textAlign: 'left' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-              <div style={{ backgroundColor: '#7c3aed', color: 'white', borderRadius: '18px 18px 4px 18px', padding: '12px 18px', fontSize: '14px', fontWeight: '600', maxWidth: '75%' }}>
-                I want to grow my TikTok and Instagram for fitness
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
-              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #34d399)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', flexShrink: 0, marginTop: '2px' }}>✦</div>
-              <div style={{ backgroundColor: '#f5f0e8', borderRadius: '4px 18px 18px 18px', padding: '14px 18px', fontSize: '14px', color: '#1a1a2e', lineHeight: '1.6', flex: 1 }}>
-                <strong>Here's your growth plan:</strong><br />
-                • Post 4x/week — Mon, Wed, Fri, Sun<br />
-                • Content mix: 60% educational, 40% personal<br />
-                • Best time to post: 6-8pm your timezone
-              </div>
-            </div>
-            <div style={{ backgroundColor: '#f8f7ff', border: '1.5px solid #ede9fe', borderRadius: '14px', padding: '14px 16px' }}>
-              <div style={{ fontSize: '11px', color: '#7c3aed', fontWeight: '700', marginBottom: '4px' }}>📊 Action Plan — Created by Clarity</div>
-              <div style={{ fontSize: '13px', color: '#1a1a2e', fontWeight: '600' }}>Fitness Creator Growth Plan · June 2026</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features — Mem style alternating left/right */}
-      <section style={{ backgroundColor: 'white', padding: '6rem 4rem' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <div style={{ fontSize: '13px', fontWeight: '700', color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Everything you need</div>
-            <h2 style={{ fontSize: '52px', fontWeight: '900', color: '#1a1a2e', letterSpacing: '-2px', lineHeight: '1.08' }}>Get things out of<br />your head and<br /><span style={{ color: '#7c3aed' }}>into Clarity.</span></h2>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            {[
-              { emoji: '🧠', title: 'AI Brain Dump', desc: 'Type anything — messy thoughts, random ideas, big goals. The AI organizes it all instantly. No folders, no structure needed. Just dump and go.', tag: 'Core', color: '#7c3aed' },
-              { emoji: '✨', title: 'Clarity Score', desc: 'Every week, your AI analyzes everything you\'ve saved and gives you a personal report — your top themes, what to focus on, and your score out of 100.', tag: 'Unique', color: '#34d399' },
-              { emoji: '📊', title: 'Instant Spreadsheets', desc: 'Ask for a content calendar or action plan and get a real downloadable Excel file in seconds. No templates, no setup — just ask and download.', tag: 'Save Time', color: '#7c3aed' },
-              { emoji: '🎬', title: 'Video Analysis', desc: 'Paste any YouTube URL and get scroll-stopping hooks, content ideas, hashtags, and a full strategy pulled directly from that video.', tag: 'Premium', color: '#f59e0b' },
-              { emoji: '⚡', title: 'Content Tools', desc: 'Caption writer, hashtag generator, and hook creator — three powerful AI tools built specifically for creators who post every day.', tag: 'Creator Tools', color: '#34d399' },
-              { emoji: '💡', title: 'Ideas Library', desc: 'Every idea you save lives here forever. Click any idea and get an AI deep dive — why it\'s great, how to execute it, and what to do today.', tag: 'Never Lose Ideas', color: '#7c3aed' },
-            ].map((f, i) => (
-              <div key={f.title} className="feature-row" style={{ display: 'flex', alignItems: 'flex-start', gap: '2rem', padding: '2.5rem 0', borderBottom: i < 5 ? '1px solid #f0ece4' : 'none', flexDirection: i % 2 === 0 ? 'row' : 'row-reverse' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '18px', backgroundColor: i % 2 === 0 ? '#f8f7ff' : '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', flexShrink: 0 }}>{f.emoji}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a1a2e', letterSpacing: '-0.5px' }}>{f.title}</div>
-                    <span style={{ fontSize: '11px', backgroundColor: f.color === '#f59e0b' ? '#fef3c7' : f.color === '#34d399' ? '#d1fae5' : '#ede9fe', color: f.color, padding: '3px 10px', borderRadius: '100px', fontWeight: '700' }}>{f.tag}</span>
-                  </div>
-                  <div style={{ fontSize: '16px', color: '#666', lineHeight: '1.7' }}>{f.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Big quote section */}
-      <section style={{ backgroundColor: '#1a1a2e', padding: '8rem 4rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '400px', height: '400px', borderRadius: '50%', backgroundColor: '#7c3aed', opacity: 0.08, filter: 'blur(80px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '-100px', right: '-100px', width: '350px', height: '350px', borderRadius: '50%', backgroundColor: '#34d399', opacity: 0.08, filter: 'blur(60px)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative' }}>
-          <div style={{ fontSize: '72px', marginBottom: '1.5rem' }}>💬</div>
-          <h2 className="quote-big" style={{ fontSize: '52px', fontWeight: '900', color: 'white', lineHeight: '1.15', letterSpacing: '-2px', marginBottom: '1.5rem' }}>
-            "ChatGPT forgets you.<br /><span style={{ color: '#34d399' }}>Clarity grows with you."</span>
-          </h2>
-          <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.5)', lineHeight: '1.7', marginBottom: '3rem' }}>
-            Your AI that remembers every idea, tracks your growth over time,<br />and helps you turn scattered thoughts into real action.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', flexWrap: 'wrap' }}>
-            {[{ num: '∞', label: 'Ideas saved forever' }, { num: '7', label: 'Days to see results' }, { num: '1', label: 'App for everything' }].map(s => (
+      {/* QUOTE */}
+      <section className="quote-belt">
+        <div className="quote-belt-inner">
+          <p className="qb-pre">The Clarity difference</p>
+          <h2 className="qb-h">"ChatGPT forgets you.<br /><em>Clarity grows with you."</em></h2>
+          <p className="qb-sub">Your AI that remembers every idea, tracks your growth,<br />and turns scattered thoughts into real action.</p>
+          <div className="qb-stats">
+            {[{ num: '∞', label: 'Ideas saved forever' }, { num: '7d', label: 'To see results' }, { num: '1', label: 'App for everything' }].map(s => (
               <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '44px', fontWeight: '900', color: 'white', letterSpacing: '-1px' }}>{s.num}</div>
-                <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>{s.label}</div>
+                <div className="qb-stat-num">{s.num}</div>
+                <div className="qb-stat-label">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section style={{ backgroundColor: '#f5f0e8', padding: '7rem 4rem' }}>
-        <div style={{ maxWidth: '980px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <div style={{ fontSize: '13px', fontWeight: '700', color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>Simple pricing</div>
-            <h2 style={{ fontSize: '52px', fontWeight: '900', color: '#1a1a2e', letterSpacing: '-2px' }}>Start free.<br /><span style={{ color: '#7c3aed' }}>Upgrade when ready.</span></h2>
-          </div>
-
-          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+      {/* PRICING */}
+      <section className="pricing-belt">
+        <div className="pricing-belt-inner">
+          <h2 className="pricing-hd">Simple pricing,<br /><span>serious value.</span></h2>
+          <p className="pricing-sub">Start free. Upgrade when you're ready to go deeper.</p>
+          <div className="pricing-row">
             {[
               { name: 'Free', price: '$0', period: '', desc: 'Perfect to get started', features: ['Basic AI organizing', '5 ideas per day', 'Dashboard access', 'Ideas library'], btn: 'Get started free', featured: false },
               { name: 'Pro', price: '$29.99', period: '/mo', desc: 'For serious creators', features: ['Unlimited AI', 'Spreadsheet generator', 'Content calendar', 'Clarity Score', 'Content tools', 'Daily Focus'], btn: 'Start Pro', featured: true },
               { name: 'Premium', price: '$59.99', period: '/mo', desc: 'For power users', features: ['Everything in Pro', 'Video analysis', 'AI Content Brief', 'Posting Schedule', 'Priority support'], btn: 'Start Premium', featured: false },
-            ].map((plan) => (
-              <div key={plan.name} className="pricing-card" style={{ backgroundColor: plan.featured ? '#1a1a2e' : 'white', borderRadius: '24px', padding: '2.25rem', position: 'relative', boxShadow: plan.featured ? '0 24px 64px rgba(26,26,46,0.25)' : '0 4px 16px rgba(0,0,0,0.04)' }}>
-                {plan.featured && <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#7c3aed', color: 'white', fontSize: '11px', fontWeight: '800', padding: '5px 16px', borderRadius: '100px', whiteSpace: 'nowrap' }}>⭐ MOST POPULAR</div>}
-                <div style={{ fontSize: '13px', fontWeight: '700', color: plan.featured ? 'rgba(255,255,255,0.4)' : '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>{plan.name}</div>
-                <div style={{ fontSize: '48px', fontWeight: '900', color: plan.featured ? 'white' : '#1a1a2e', letterSpacing: '-2px', marginBottom: '4px' }}>
-                  {plan.price}<span style={{ fontSize: '16px', fontWeight: '500', color: plan.featured ? 'rgba(255,255,255,0.4)' : '#aaa' }}>{plan.period}</span>
-                </div>
-                <div style={{ fontSize: '14px', color: plan.featured ? 'rgba(255,255,255,0.5)' : '#888', marginBottom: '2rem' }}>{plan.desc}</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '2rem' }}>
-                  {plan.features.map((f) => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: plan.featured ? 'rgba(255,255,255,0.8)' : '#444', fontWeight: '500' }}>
-                      <span style={{ color: plan.featured ? '#34d399' : '#7c3aed', fontWeight: '800' }}>✓</span> {f}
-                    </div>
-                  ))}
-                </div>
-                <button className="btn-main" onClick={() => router.push('/login')} style={{ width: '100%', backgroundColor: plan.featured ? '#7c3aed' : '#1a1a2e', color: 'white', border: 'none', borderRadius: '100px', padding: '14px', fontSize: '15px', cursor: 'pointer', fontWeight: '700' }}>
-                  {plan.btn}
-                </button>
+            ].map(plan => (
+              <div key={plan.name} className={`pc ${plan.featured ? 'pc-featured' : ''}`}>
+                {plan.featured && <div className="pc-badge">MOST POPULAR</div>}
+                <div className="pc-tier">{plan.name}</div>
+                <div className="pc-price">{plan.price}<span className="pc-period">{plan.period}</span></div>
+                <div className="pc-desc">{plan.desc}</div>
+                <ul className="pc-features-list">
+                  {plan.features.map(f => <li key={f}>{f}</li>)}
+                </ul>
+                <button className="pc-btn" onClick={() => router.push('/login')}>{plan.btn}</button>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section style={{ backgroundColor: 'white', padding: '8rem 4rem', textAlign: 'center' }}>
-        <div style={{ maxWidth: '680px', margin: '0 auto' }}>
-          <h2 className="cta-big" style={{ fontSize: '60px', fontWeight: '900', color: '#1a1a2e', letterSpacing: '-2.5px', lineHeight: '1.06', marginBottom: '1.5rem' }}>
-            Your ideas deserve<br /><span style={{ color: '#7c3aed' }}>more than a notes app.</span>
-          </h2>
-          <p style={{ fontSize: '18px', color: '#666', marginBottom: '2.5rem', lineHeight: '1.7' }}>
-            Join Clarity and turn your scattered thoughts into real action — starting today.
-          </p>
-          <button className="btn-main" onClick={() => router.push('/login')} style={{ background: '#1a1a2e', color: 'white', border: 'none', borderRadius: '100px', padding: '20px 48px', fontSize: '18px', cursor: 'pointer', fontWeight: '800' }}>
-            Get Clarity free →
+      {/* CTA */}
+      <section className="cta-belt">
+        <div className="cta-belt-inner">
+          <h2 className="cta-h">Your ideas deserve<br />more than <span>a notes app.</span></h2>
+          <p className="cta-sub">Join Clarity and turn your scattered thoughts into real action — starting today.</p>
+          <button className="btn-xl-primary" style={{ fontSize: '18px', padding: '20px 52px' }} onClick={() => router.push('/login')}>
+            Get started — it's free →
           </button>
-          <div style={{ marginTop: '1.25rem', fontSize: '13px', color: '#bbb' }}>No credit card required · Free forever plan</div>
+          <p className="cta-note">No credit card required · Free forever plan</p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer style={{ backgroundColor: '#f5f0e8', borderTop: '1px solid rgba(0,0,0,0.06)', padding: '2.5rem 4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a1a2e' }}>✦ Clarity</div>
-        <div style={{ fontSize: '13px', color: '#bbb' }}>© 2026 Clarity. All rights reserved.</div>
-        <div style={{ display: 'flex', gap: '1.5rem', fontSize: '13px', color: '#888' }}>
-          <span style={{ cursor: 'pointer' }}>Privacy</span>
-          <span style={{ cursor: 'pointer' }}>Terms</span>
-          <span style={{ cursor: 'pointer' }}>Contact</span>
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="footer-logo">✦ Clarity</div>
+        <div className="footer-copy">© 2026 Clarity. All rights reserved.</div>
+        <div className="footer-links">
+          <span>Privacy</span><span>Terms</span><span>Contact</span>
         </div>
       </footer>
     </>
