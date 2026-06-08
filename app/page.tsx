@@ -277,7 +277,7 @@ export default function Home() {
           ))}
 
           <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '16px 14px 8px', marginTop: '8px' }}>Account</div>
-          <div className="nav-item"><span style={{ fontSize: '16px' }}>💳</span> Billing</div>
+          <div className="nav-item" onClick={() => window.location.href = '/pricing'}><span style={{ fontSize: '16px' }}>💳</span> Upgrade</div>
           <div className="nav-item" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/landing' }} style={{ color: '#fca5a5' }}>
             <span style={{ fontSize: '16px' }}>🚪</span> Sign out
           </div>
