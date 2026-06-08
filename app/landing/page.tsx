@@ -22,6 +22,10 @@ export default function Landing() {
     return () => { window.removeEventListener('scroll', handleScroll); clearInterval(interval); }
   }, [])
 
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   const features = [
     { emoji: '🧠', title: 'AI Brain Dump', color: '#a78bfa' },
     { emoji: '✨', title: 'Clarity Score', color: '#34d399' },
@@ -429,9 +433,9 @@ export default function Landing() {
       <nav className={`nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-logo">✦ Clarity</div>
         <div className="nav-pill">
-          <button className="nav-pill-btn">Product</button>
-          <button className="nav-pill-btn">Pricing</button>
-          <button className="nav-pill-btn">About</button>
+          <button className="nav-pill-btn" onClick={() => scrollToSection('product')}>Product</button>
+          <button className="nav-pill-btn" onClick={() => scrollToSection('pricing')}>Pricing</button>
+          <button className="nav-pill-btn" onClick={() => scrollToSection('about')}>About</button>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button className="nav-login" onClick={() => router.push('/login')}>Log in</button>
@@ -480,7 +484,7 @@ export default function Landing() {
       </section>
 
       {/* FEATURES */}
-      <section className="features-section">
+      <section id="product" className="features-section">
         <div className="features-inner">
           <p className="section-eyebrow">What's inside</p>
           <h2 className="section-h2">Six tools built for<br />creators who think <em>fast.</em></h2>
@@ -563,7 +567,7 @@ export default function Landing() {
       </section>
 
       {/* PRICING */}
-      <section className="pricing-section">
+      <section id="pricing" className="pricing-section">
         <div className="pricing-inner">
           <p className="section-eyebrow">Pricing</p>
           <h2 className="pricing-h">Start free.<br /><em>Upgrade when ready.</em></h2>
@@ -610,7 +614,7 @@ export default function Landing() {
       </section>
 
       {/* FOOTER */}
-      <footer className="footer">
+      <footer id="about" className="footer">
         <div className="footer-logo">✦ Clarity</div>
         <div className="footer-copy">© 2026 Clarity. All rights reserved.</div>
         <div className="footer-links">
