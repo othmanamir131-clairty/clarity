@@ -5,7 +5,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(request: NextRequest) {
   try {
-    const { priceId } = await request.json()
+    const { priceId, userId } = await request.json()
 
     if (!priceId) {
       return NextResponse.json(
@@ -23,6 +23,10 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'subscription',
+      metadata: {
+        userId: userId || '',
+        priceId,
+      },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/?upgraded=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/pricing`,
     })

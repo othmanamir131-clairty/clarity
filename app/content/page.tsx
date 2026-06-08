@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
+import { useState } from 'react'
+import { useProfile } from '../../lib/useProfile'
+import UpgradeGate from '../../lib/UpgradeGate'
 
 type Tool = 'caption' | 'hashtag' | 'hook'
 
@@ -11,12 +12,7 @@ export default function Content() {
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) window.location.href = '/landing'
-    })
-  }, [])
+  const { loading: profileLoading, isPro } = useProfile()
 
   const tools = [
     { id: 'caption', label: 'Caption Writer', emoji: '✍️', desc: '3 captions in different tones' },
@@ -141,6 +137,13 @@ export default function Content() {
       </div>
 
       <div style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
+        {!profileLoading && !isPro && (
+          <UpgradeGate
+            title="Pro feature only"
+            message="Content tools are reserved for Pro members. Upgrade to craft captions, hashtags, and hooks faster."
+            planLabel="Pro"
+          />
+        )}
         <div style={{ maxWidth: '780px', margin: '0 auto' }}>
 
           {/* Header */}

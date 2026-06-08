@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useProfile } from '../../lib/useProfile'
+import UpgradeGate from '../../lib/UpgradeGate'
 
 export default function Report() {
   const [ideas, setIdeas] = useState<any[]>([])
@@ -9,6 +11,7 @@ export default function Report() {
   const [score, setScore] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [generated, setGenerated] = useState(false)
+  const { loading: profileLoading, isPro } = useProfile()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -87,6 +90,13 @@ export default function Report() {
       </div>
 
       <div style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
+        {!profileLoading && !isPro && (
+          <UpgradeGate
+            title="Pro feature only"
+            message="Weekly reports are available to Pro members. Upgrade to Pro to unlock deeper AI insights and performance summaries."
+            planLabel="Pro"
+          />
+        )}
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
 
           {/* Header */}

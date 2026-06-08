@@ -1,12 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
+import { supabase } from '../../lib/supabase'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 export default function Pricing() {
   const [loading, setLoading] = useState<string | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [loadingUser, setLoadingUser] = useState(true)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        window.location.href = '/landing'
+        return
+      }
+      setUser(data.user)
+      setLoadingUser(false)
+    })
+  }, [])
 
   const plans = [
     {
@@ -55,13 +69,17 @@ export default function Pricing() {
 
   const handleCheckout = async (priceId: string | undefined, name: string) => {
     if (!priceId) return
+    if (!user?.id) {
+      alert('Please sign in to upgrade')
+      return
+    }
 
     setLoading(name)
     try {
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId }),
+        body: JSON.stringify({ priceId, userId: user.id }),
       })
 
       const data = await response.json()

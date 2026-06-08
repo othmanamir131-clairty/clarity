@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
+import { useProfile } from '../../lib/useProfile'
+import UpgradeGate from '../../lib/UpgradeGate'
 
 const BLOB_STYLE: React.CSSProperties = {
   position: 'fixed',
@@ -51,6 +53,7 @@ export default function ContentBrief() {
   const [copied, setCopied] = useState(false)
   const [savedBriefs, setSavedBriefs] = useState<{ topic: string; platform: string; brief: Brief }[]>([])
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate')
+  const { loading: profileLoading, isPro } = useProfile()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -198,6 +201,13 @@ Return this exact JSON structure:
 
       {/* Main */}
       <main style={{ marginLeft: '220px', flex: 1, padding: '32px', position: 'relative', zIndex: 1 }}>
+        {!profileLoading && !isPro && (
+          <UpgradeGate
+            title="Pro feature only"
+            message="Content briefs are available on Pro. Upgrade to Pro for smarter briefs, better hooks, and quick content structure."
+            planLabel="Pro"
+          />
+        )}
         {/* Header */}
         <div style={{ marginBottom: '28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>

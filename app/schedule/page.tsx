@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useProfile } from '../../lib/useProfile'
+import UpgradeGate from '../../lib/UpgradeGate'
 
 const PLATFORMS = [
   { name: 'YouTube',   icon: '▶️', color: '#f87171', bg: 'rgba(248,113,113,0.15)', border: 'rgba(248,113,113,0.3)' },
@@ -33,6 +35,7 @@ export default function Schedule() {
   const [posts, setPosts] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ day: 0, platform: PLATFORMS[0].name, title: '', time: '09:00', notes: '' })
+  const { loading: profileLoading, isPro } = useProfile()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -190,6 +193,14 @@ export default function Schedule() {
       </div>
 
       <div style={{ display: 'flex', minHeight: '100vh', position: 'relative', zIndex: 1 }}>
+
+        {!profileLoading && !isPro && (
+          <UpgradeGate
+            title="Pro feature only"
+            message="Post scheduling is a Pro feature. Upgrade to Pro to plan your content calendar with AI-powered pacing."
+            planLabel="Pro"
+          />
+        )}
 
         {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
 

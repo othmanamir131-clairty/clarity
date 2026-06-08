@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
+import { useState } from 'react'
+import { useProfile } from '../../lib/useProfile'
+import UpgradeGate from '../../lib/UpgradeGate'
 
 export default function VideoAnalysis() {
   const [url, setUrl] = useState('')
@@ -9,12 +10,7 @@ export default function VideoAnalysis() {
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) window.location.href = '/landing'
-    })
-  }, [])
+  const { loading: profileLoading, isPremium } = useProfile()
 
   const analyze = async () => {
     if (!url.trim()) return
@@ -110,6 +106,13 @@ Return ONLY a raw JSON object, no markdown, no backticks, no explanation. Just t
       </div>
 
       <div style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
+        {!profileLoading && !isPremium && (
+          <UpgradeGate
+            title="Premium feature only"
+            message="Video Analysis is unlocked for Premium members. Upgrade to Premium for full AI video strategy, hooks, and hashtags."
+            planLabel="Premium"
+          />
+        )}
         <div style={{ maxWidth: '820px', margin: '0 auto' }}>
 
           {/* Header */}
