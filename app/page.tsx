@@ -283,7 +283,12 @@ export default function Home() {
           </div>
 
           {/* User card */}
-          <div style={{ marginTop: 'auto', padding: '14px', background: 'rgba(255,255,255,0.08)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.12)' }}>
+          <div
+            onClick={() => window.location.href = '/settings'}
+            style={{ marginTop: 'auto', padding: '14px', background: 'rgba(255,255,255,0.08)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', transition: 'all 0.18s ease' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.13)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #a78bfa, #34d399)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '800', color: 'white', flexShrink: 0, boxShadow: '0 0 16px rgba(167,139,250,0.5)' }}>
                 {user?.email?.slice(0,2).toUpperCase() || 'ME'}
