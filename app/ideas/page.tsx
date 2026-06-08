@@ -11,18 +11,18 @@ export default function Ideas() {
   const [loadingInsight, setLoadingInsight] = useState(false)
   const [search, setSearch] = useState('')
 
+  const fetchIdeas = async () => {
+    const { data } = await supabase.from('ideas').select('*').order('created_at', { ascending: false })
+    if (data) setIdeas(data)
+    setLoading(false)
+  }
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) window.location.href = '/landing'
       else fetchIdeas()
     })
   }, [])
-
-  const fetchIdeas = async () => {
-    const { data } = await supabase.from('ideas').select('*').order('created_at', { ascending: false })
-    if (data) setIdeas(data)
-    setLoading(false)
-  }
 
   const selectIdea = async (idea: any) => {
     setSelectedIdea(idea)
