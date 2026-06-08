@@ -618,7 +618,9 @@ export default function Landing() {
         <div className="footer-logo">✦ Clarity</div>
         <div className="footer-copy">© 2026 Clarity. All rights reserved.</div>
         <div className="footer-links">
-          <span>Privacy</span><span>Terms</span><span>Contact</span>
+          <span onClick={() => router.push('/privacy')}>Privacy</span>
+          <span onClick={() => router.push('/terms')}>Terms</span>
+          <span onClick={() => router.push('/contact')}>Contact</span>
         </div>
       </footer>
     </>
