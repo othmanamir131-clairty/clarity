@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../lib/supabase'
 
 type Tool = 'caption' | 'hashtag' | 'hook'
 
@@ -10,6 +11,12 @@ export default function Content() {
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) window.location.href = '/landing'
+    })
+  }, [])
 
   const tools = [
     { id: 'caption', label: 'Caption Writer', emoji: '✍️', desc: '3 captions in different tones' },

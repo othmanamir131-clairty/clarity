@@ -54,7 +54,7 @@ export default function ContentBrief() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) router.push('/login')
+      if (!data.user) router.push('/landing')
       else setUser(data.user)
     })
   }, [router])
@@ -190,7 +190,7 @@ Return this exact JSON structure:
         })}
         <div style={{ marginTop: 'auto' }}>
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', padding: '0 12px', marginBottom: '8px' }}>{user?.email}</div>
-          <button onClick={async () => { await supabase.auth.signOut(); router.push('/login') }} style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px' }}>
+          <button onClick={async () => { await supabase.auth.signOut(); router.push('/landing') }} style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '13px' }}>
             Sign out
           </button>
         </div>

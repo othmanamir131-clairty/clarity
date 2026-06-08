@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../lib/supabase'
 
 export default function VideoAnalysis() {
   const [url, setUrl] = useState('')
@@ -8,6 +9,12 @@ export default function VideoAnalysis() {
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) window.location.href = '/landing'
+    })
+  }, [])
 
   const analyze = async () => {
     if (!url.trim()) return
