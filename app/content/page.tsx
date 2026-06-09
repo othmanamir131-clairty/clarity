@@ -127,6 +127,23 @@ export default function Content() {
           display: inline-flex; align-items: center; gap: 4px;
         }
         .back-link:hover { color: rgba(255,255,255,0.7); }
+
+        @media (max-width: 768px) {
+          .content-wrap { padding: 1.25rem !important; }
+          .tool-grid { gap: 10px !important; }
+          h1 { font-size: 26px !important; letter-spacing: -0.5px !important; }
+          p { font-size: 13px !important; }
+          .generate-btn { padding: 11px 22px !important; font-size: 14px !important; }
+        }
+        @media (max-width: 480px) {
+          .content-wrap { padding: 1rem !important; }
+          .tool-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
+          .tool-card { display: flex !important; align-items: center !important; gap: 12px !important; padding: 0.875rem !important; }
+          h1 { font-size: 22px !important; }
+          .generate-btn { width: 100% !important; }
+          .input-footer { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+          .input-footer .hint-text { display: none !important; }
+        }
       `}</style>
 
       {/* Ambient blobs */}
@@ -136,7 +153,7 @@ export default function Content() {
         <div style={{ position: 'absolute', top: '40%', left: '35%', width: '380px', height: '380px', borderRadius: '50%', background: 'rgba(59,7,100,0.4)', filter: 'blur(80px)', animation: 'blob 20s ease-in-out infinite 3s' }} />
       </div>
 
-      <div style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
+      <div className="content-wrap" style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
         {!profileLoading && !isPro && (
           <UpgradeGate
             title="Pro feature only"
@@ -159,7 +176,7 @@ export default function Content() {
           </div>
 
           {/* Tool selector */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px', marginBottom: '1.5rem' }}>
+          <div className="tool-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px', marginBottom: '1.5rem' }}>
             {tools.map(tool => (
               <div
                 key={tool.id}
@@ -189,8 +206,8 @@ export default function Content() {
               placeholder={placeholders[activeTool]}
               rows={3}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>Press Enter to generate · Shift+Enter for new line</div>
+            <div className="input-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="hint-text" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>Press Enter to generate · Shift+Enter for new line</div>
               <button className="generate-btn" onClick={generate} disabled={loading}>
                 {loading ? (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

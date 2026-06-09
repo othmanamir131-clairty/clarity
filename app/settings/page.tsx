@@ -200,9 +200,25 @@ export default function Settings() {
           }
           .sidebar.open { left: 0 !important; }
           .overlay { display: block; }
-          .main { padding: 1.25rem !important; }
+          .main {
+            padding: 1.25rem !important;
+          }
           .mobile-bar { display: flex !important; }
           .plans-grid { grid-template-columns: 1fr !important; }
+          .section-title { font-size: 20px !important; margin-bottom: 1rem !important; }
+          .section-desc { font-size: 13px !important; margin-bottom: 1.5rem !important; }
+          .plan-card { padding: 1.25rem !important; }
+          h1 { font-size: 26px !important; letter-spacing: -0.5px !important; }
+        }
+        @media (max-width: 480px) {
+          .main { padding: 1rem !important; max-width: 100% !important; }
+          .section-title { font-size: 18px !important; }
+          .section-desc { font-size: 12px !important; }
+          .plan-card { padding: 1rem !important; }
+          .danger-btn-confirm { padding: 10px 16px !important; font-size: 13px !important; }
+          .cancel-btn { padding: 10px 16px !important; font-size: 13px !important; }
+          .settings-card { padding: 1.25rem !important; }
+          .danger-confirm-box { max-width: 100% !important; }
         }
       `}</style>
 
@@ -405,7 +421,7 @@ export default function Settings() {
                   Delete account
                 </button>
               ) : (
-                <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '14px', padding: '16px', maxWidth: '460px' }}>
+                <div className="danger-confirm-box" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '14px', padding: '16px', maxWidth: '460px' }}>
                   <div style={{ fontSize: '14px', fontWeight: '700', color: 'white' }}>Are you sure you want to delete your account?</div>
                   <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginTop: '4px' }}>All your ideas, schedules, and reports will be permanently erased. This action cannot be reversed.</div>
                   <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>

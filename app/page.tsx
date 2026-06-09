@@ -220,11 +220,75 @@ export default function Home() {
           }
           .sidebar.open { left: 0 !important; }
           .overlay { display: block; }
-          .main  { padding: 1.25rem !important; }
-          .mobile-bar { display: flex !important; }
-          .stats-grid  { grid-template-columns: repeat(2,1fr) !important; }
+          .main {
+            padding: 1rem !important;
+            gap: 1rem !important;
+          }
+          .mobile-bar {
+            display: flex !important;
+            padding: 0 0.5rem 1rem;
+            margin: 0 -1rem 0 -1rem;
+            padding: 1rem 1rem 0.5rem 1rem;
+          }
+          .stats-grid {
+            grid-template-columns: repeat(2,1fr) !important;
+            gap: 10px !important;
+          }
+          .stats-grid > div {
+            padding: 1rem !important;
+          }
+          .stats-grid h1 {
+            font-size: 24px !important;
+          }
+          .stats-grid > div > div:nth-child(3) {
+            font-size: 32px !important;
+          }
           .bottom-grid { grid-template-columns: 1fr !important; }
           .premium-grid { grid-template-columns: 1fr !important; }
+          .chip {
+            font-size: 12px !important;
+            padding: 7px 14px !important;
+          }
+          .send-btn {
+            padding: 10px 18px !important;
+            font-size: 12px !important;
+            width: 100%;
+            margin-top: 0.75rem;
+          }
+          h1 { font-size: 24px !important; line-height: 1.2 !important; }
+          h2 { font-size: 20px !important; }
+          p { font-size: 13px !important; }
+        }
+
+        @media (max-width: 430px) {
+          .main {
+            padding: 0.75rem !important;
+            gap: 0.75rem !important;
+          }
+          .focus-inner {
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+          }
+          .focus-inner button {
+            width: 100% !important;
+            text-align: center !important;
+          }
+          .input-row {
+            flex-direction: column !important;
+            gap: 8px !important;
+            align-items: stretch !important;
+          }
+          .send-btn {
+            width: 100% !important;
+            margin-top: 0 !important;
+            text-align: center !important;
+          }
+          .stats-grid {
+            gap: 8px !important;
+          }
+          .stats-grid > div {
+            padding: 0.875rem !important;
+          }
         }
       `}</style>
 
@@ -335,7 +399,7 @@ export default function Home() {
             {/* inner glow */}
             <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(167,139,250,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(52,211,153,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1.5rem', position: 'relative' }}>
+            <div className="focus-inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1.5rem', position: 'relative' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#34d399', display: 'inline-block', animation: 'pulse 2s ease infinite', boxShadow: '0 0 10px rgba(52,211,153,0.8)' }} />
@@ -447,7 +511,7 @@ export default function Home() {
             </div>
 
             {/* input row */}
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '16px', padding: '12px 16px', backdropFilter: 'blur(10px)' }}>
+            <div className="input-row" style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '16px', padding: '12px 16px', backdropFilter: 'blur(10px)' }}>
               <textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}

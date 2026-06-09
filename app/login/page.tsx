@@ -113,6 +113,41 @@ export default function Login() {
           background: rgba(255,255,255,0.1);
           margin: 1.5rem 0;
         }
+
+        @media (max-width: 768px) {
+          .login-card {
+            padding: 2.25rem 1.75rem;
+            max-width: 100%;
+          }
+          body {
+            font-size: 14px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .login-card {
+            padding: 1.75rem 1.25rem;
+            margin: 0 1rem;
+            border-radius: 16px;
+          }
+          .input-field {
+            padding: 11px 14px;
+            font-size: 13px;
+            border-radius: 10px;
+          }
+          .submit-btn {
+            padding: 12px;
+            font-size: 14px;
+            border-radius: 10px;
+            margin-top: 3px;
+          }
+          .toggle-link {
+            font-size: 13px;
+          }
+          .divider {
+            margin: 1.25rem 0;
+          }
+        }
       `}</style>
 
       <div style={{ position: 'fixed', inset: 0, background: '#2e1065', zIndex: 0 }}>

@@ -310,6 +310,126 @@ export default function Pricing() {
           opacity: 0.6;
           cursor: not-allowed;
         }
+
+        @media (max-width: 768px) {
+          .pricing-wrap {
+            padding: 2rem 1.5rem;
+          }
+          .pricing-container {
+            max-width: 100%;
+          }
+          .pricing-header {
+            margin-bottom: 2rem;
+          }
+          .back-link {
+            font-size: 12px;
+            margin-bottom: 1.5rem;
+          }
+          .pricing-title {
+            font-size: 32px;
+            letter-spacing: -1px;
+            margin-bottom: 0.75rem;
+          }
+          .pricing-subtitle {
+            font-size: 14px;
+            margin-bottom: 2rem;
+          }
+          .pricing-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+          }
+          .pricing-card {
+            padding: 1.75rem;
+          }
+          .pricing-badge {
+            font-size: 10px;
+            padding: 5px 12px;
+            top: -10px;
+          }
+          .plan-name {
+            font-size: 20px;
+            margin-bottom: 6px;
+            margin-top: 0.35rem;
+          }
+          .plan-price {
+            font-size: 36px;
+            margin-bottom: 3px;
+          }
+          .plan-period {
+            font-size: 13px;
+            margin-bottom: 0.75rem;
+            padding-bottom: 1rem;
+          }
+          .plan-description {
+            font-size: 13px;
+            margin-bottom: 1.25rem;
+          }
+          .plan-features {
+            margin-bottom: 1.5rem;
+          }
+          .plan-features li {
+            font-size: 13px;
+            margin-bottom: 0.6rem;
+          }
+          .plan-button {
+            padding: 12px;
+            font-size: 14px;
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .pricing-wrap {
+            padding: 1.5rem 1rem;
+            min-height: auto;
+          }
+          .pricing-header {
+            margin-bottom: 1.5rem;
+          }
+          .back-link {
+            font-size: 11px;
+            margin-bottom: 1rem;
+          }
+          .pricing-title {
+            font-size: 24px;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+          }
+          .pricing-subtitle {
+            font-size: 13px;
+            margin-bottom: 1.5rem;
+          }
+          .pricing-grid {
+            gap: 1rem;
+          }
+          .pricing-card {
+            padding: 1.5rem 1rem;
+          }
+          .plan-name {
+            font-size: 18px;
+            margin-top: 0.25rem;
+          }
+          .plan-price {
+            font-size: 32px;
+          }
+          .plan-period {
+            font-size: 12px;
+            margin-bottom: 0.6rem;
+            padding-bottom: 0.75rem;
+          }
+          .plan-description {
+            font-size: 12px;
+            margin-bottom: 1rem;
+          }
+          .plan-features li {
+            font-size: 12px;
+            margin-bottom: 0.5rem;
+          }
+          .plan-button {
+            padding: 10px;
+            font-size: 13px;
+          }
+        }
       `}</style>
 
       {/* Ambient blobs */}

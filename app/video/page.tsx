@@ -96,6 +96,20 @@ Return ONLY a raw JSON object, no markdown, no backticks, no explanation. Just t
 
         .back-link { font-size: 13px; color: rgba(255,255,255,0.4); cursor: pointer; font-weight: 500; transition: color 0.2s; }
         .back-link:hover { color: rgba(255,255,255,0.7); }
+
+        @media (max-width: 768px) {
+          .video-wrap { padding: 1.25rem !important; }
+          h1 { font-size: 26px !important; letter-spacing: -0.5px !important; margin-bottom: 8px !important; }
+          p { font-size: 13px !important; }
+          .analyze-btn { padding: 11px 20px !important; font-size: 14px !important; }
+        }
+        @media (max-width: 480px) {
+          .video-wrap { padding: 1rem !important; }
+          h1 { font-size: 22px !important; }
+          .url-row { flex-direction: column !important; }
+          .url-input { border-radius: 10px !important; }
+          .analyze-btn { width: 100% !important; border-radius: 10px !important; justify-content: center !important; }
+        }
       `}</style>
 
       {/* Blobs */}
@@ -105,7 +119,7 @@ Return ONLY a raw JSON object, no markdown, no backticks, no explanation. Just t
         <div style={{ position: 'absolute', top: '40%', left: '35%', width: '380px', height: '380px', borderRadius: '50%', background: 'rgba(59,7,100,0.4)', filter: 'blur(80px)', animation: 'blob 20s ease-in-out infinite 3s' }} />
       </div>
 
-      <div style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
+      <div className="video-wrap" style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
         {!profileLoading && !isPremium && (
           <UpgradeGate
             title="Premium feature only"
@@ -131,7 +145,7 @@ Return ONLY a raw JSON object, no markdown, no backticks, no explanation. Just t
           {/* Input */}
           <div style={{ ...glass, padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ fontSize: '13px', fontWeight: '600', color: 'rgba(255,255,255,0.5)', marginBottom: '12px' }}>🔗 Paste your YouTube URL</div>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div className="url-row" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <input className="url-input" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && analyze()} placeholder="https://www.youtube.com/watch?v=..." />
               <button className="analyze-btn" onClick={analyze} disabled={loading}>
                 {loading ? <><div className="spinner" /> Analyzing...</> : '✨ Analyze'}

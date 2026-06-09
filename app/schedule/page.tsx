@@ -179,9 +179,19 @@ export default function Schedule() {
           }
           .sidebar.open { left: 0 !important; }
           .overlay { display: block; }
-          .main { padding: 1.25rem !important; }
+          .main {
+            padding: 1.25rem !important;
+          }
           .mobile-bar { display: flex !important; }
           .cal-grid { grid-template-columns: 1fr !important; }
+          .day-card { padding: 0.75rem !important; min-height: auto !important; }
+          .post-card { padding: 0.75rem !important; font-size: 12px !important; }
+        }
+        @media (max-width: 480px) {
+          .main { padding: 0.75rem !important; }
+          .day-card { padding: 0.5rem !important; }
+          .post-card { padding: 0.5rem !important; font-size: 11px !important; }
+          .add-day-btn { font-size: 10px !important; padding: 6px !important; }
         }
       `}</style>
 
@@ -345,7 +355,7 @@ export default function Schedule() {
               const dayPosts = posts.filter(p => p.day === i).sort((a, b) => a.time.localeCompare(b.time))
               const isToday = date.toDateString() === new Date().toDateString()
               return (
-                <div key={i} style={{
+                <div key={i} className="day-card" style={{
                   ...glass, padding: '14px', minHeight: '240px',
                   display: 'flex', flexDirection: 'column', gap: '8px',
                   ...(isToday ? { border: '1px solid rgba(167,139,250,0.4)', boxShadow: '0 0 24px rgba(167,139,250,0.15)' } : {}),

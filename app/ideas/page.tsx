@@ -106,6 +106,18 @@ export default function Ideas() {
         @media (max-width: 768px) {
           .layout { flex-direction: column !important; }
           .right-panel { width: 100% !important; position: static !important; }
+          h1 { font-size: 24px !important; line-height: 1.2 !important; }
+          p { font-size: 13px !important; }
+          .back-link { font-size: 12px !important; }
+          .insight-bubble { padding: 10px 12px !important; font-size: 13px !important; }
+          .ideas-wrap { padding: 1.25rem !important; }
+        }
+        @media (max-width: 480px) {
+          .layout { gap: 0.75rem !important; }
+          .right-panel { min-height: auto !important; }
+          h1 { font-size: 20px !important; margin-bottom: 4px !important; }
+          p { font-size: 12px !important; margin-bottom: 1rem !important; }
+          .ideas-wrap { padding: 1rem !important; }
         }
       `}</style>
 
@@ -116,7 +128,7 @@ export default function Ideas() {
         <div style={{ position: 'absolute', top: '40%', left: '35%', width: '380px', height: '380px', borderRadius: '50%', background: 'rgba(59,7,100,0.4)', filter: 'blur(80px)', animation: 'blob 20s ease-in-out infinite 3s' }} />
       </div>
 
-      <div style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
+      <div className="ideas-wrap" style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
           {/* Header */}
@@ -162,9 +174,9 @@ export default function Ideas() {
             <div className="right-panel" style={{ width: '420px', flexShrink: 0, position: 'sticky', top: '2rem' }}>
               {!selectedIdea ? (
                 <div style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px dashed rgba(255,255,255,0.15)', borderRadius: '20px', padding: '3rem', textAlign: 'center' }}>
-                  <div style={{ fontSize: '36px', marginBottom: '12px' }}>👈</div>
+                  <div style={{ fontSize: '36px', marginBottom: '12px' }}>💡</div>
                   <div style={{ fontSize: '15px', fontWeight: '600', color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>Select an idea</div>
-                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>Click any idea on the left to get an AI deep dive</div>
+                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>Tap any idea to get an AI deep dive</div>
                 </div>
               ) : (
                 <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '20px', overflow: 'hidden', animation: 'fadeUp 0.3s ease' }}>

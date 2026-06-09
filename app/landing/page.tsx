@@ -409,23 +409,278 @@ export default function Landing() {
         .footer-links span:hover { color: white; }
 
         @media (max-width: 900px) {
-          .hero-h1 { font-size: 48px; letter-spacing: -2.5px; }
-          .nav { padding: 1rem 1.5rem; }
-          .nav-pill { display: none; }
-          .features-section { padding: 5rem 1.5rem; }
-          .features-grid { grid-template-columns: 1fr; }
-          .section-h2 { font-size: 36px; letter-spacing: -1.5px; }
-          .demo-section { padding: 5rem 1.5rem; }
-          .demo-grid { grid-template-columns: 1fr; }
-          .demo-h { font-size: 32px; }
-          .quote-section { padding: 5rem 1.5rem; }
-          .quote-text { font-size: 36px; }
-          .pricing-section { padding: 5rem 1.5rem; }
-          .pricing-h { font-size: 36px; }
-          .pricing-cards { grid-template-columns: 1fr; }
-          .cta-section { padding: 5rem 1.5rem; }
-          .cta-h { font-size: 40px; }
-          .footer { padding: 2rem 1.5rem; }
+          .nav {
+            padding: 1rem 1.5rem;
+            flex-direction: column;
+            gap: 1rem;
+          }
+          .nav-pill {
+            display: none;
+          }
+          .nav-login {
+            display: none;
+          }
+          .hero-wrap {
+            padding: 5rem 1.5rem 3rem;
+            min-height: auto;
+          }
+          .hero-h1 {
+            font-size: 36px;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+          }
+          .hero-sub {
+            font-size: 16px;
+            max-width: 100%;
+          }
+          .hero-btns {
+            gap: 10px;
+          }
+          .btn-hero-primary {
+            padding: 14px 28px;
+            font-size: 15px;
+            width: 100%;
+          }
+          .btn-hero-ghost {
+            padding: 14px 28px;
+            font-size: 15px;
+            width: 100%;
+          }
+          .hero-cards {
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+          }
+          .glass-card {
+            justify-content: center;
+            width: 100%;
+          }
+          .features-section {
+            padding: 4rem 1.5rem;
+          }
+          .features-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .section-h2 {
+            font-size: 32px;
+            letter-spacing: -1px;
+            margin-bottom: 2rem;
+          }
+          .feat-card {
+            padding: 1.5rem;
+          }
+          .feat-title {
+            font-size: 18px;
+          }
+          .demo-section {
+            padding: 4rem 1.5rem;
+          }
+          .demo-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+          }
+          .demo-h {
+            font-size: 28px;
+          }
+          .demo-chat {
+            padding: 1rem;
+          }
+          .quote-section {
+            padding: 4rem 1.5rem;
+          }
+          .quote-text {
+            font-size: 32px;
+          }
+          .quote-stats {
+            gap: 2rem;
+          }
+          .qs-num {
+            font-size: 36px;
+          }
+          .pricing-section {
+            padding: 4rem 1.5rem;
+          }
+          .pricing-h {
+            font-size: 32px;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+          }
+          .pricing-cards {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .price-card {
+            padding: 1.75rem;
+          }
+          .price-amount {
+            font-size: 42px;
+          }
+          .price-btn {
+            padding: 12px;
+            font-size: 14px;
+          }
+          .cta-section {
+            padding: 4rem 1.5rem;
+          }
+          .cta-h {
+            font-size: 32px;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+          }
+          .cta-p {
+            font-size: 16px;
+          }
+          .btn-cta {
+            padding: 16px 32px;
+            font-size: 16px;
+            width: 100%;
+          }
+          .footer {
+            padding: 2rem 1.5rem;
+            flex-direction: column;
+            text-align: center;
+          }
+        }
+        @media (max-width: 480px) {
+          .nav {
+            padding: 0.75rem 1rem;
+          }
+          .nav-logo {
+            font-size: 18px;
+          }
+          .nav-cta {
+            padding: 8px 16px;
+            font-size: 13px;
+          }
+          .hero-wrap {
+            padding: 3rem 1rem 2rem;
+          }
+          .hero-badge {
+            font-size: 11px;
+            padding: 5px 14px;
+            margin-bottom: 1.5rem;
+          }
+          .hero-h1 {
+            font-size: 28px;
+            letter-spacing: -1px;
+            margin-bottom: 1.25rem;
+          }
+          .hero-sub {
+            font-size: 14px;
+            margin-bottom: 1.5rem;
+          }
+          .hero-btns {
+            flex-direction: column;
+            width: 100%;
+          }
+          .btn-hero-primary,
+          .btn-hero-ghost {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 14px;
+          }
+          .hero-cards {
+            gap: 8px;
+          }
+          .glass-card {
+            font-size: 12px;
+            padding: 10px 14px;
+          }
+          .features-section {
+            padding: 2.5rem 1rem;
+          }
+          .section-eyebrow {
+            font-size: 11px;
+          }
+          .section-h2 {
+            font-size: 24px;
+            margin-bottom: 1.5rem;
+          }
+          .feat-emoji {
+            font-size: 28px;
+          }
+          .feat-title {
+            font-size: 16px;
+          }
+          .feat-desc {
+            font-size: 13px;
+          }
+          .demo-section {
+            padding: 2.5rem 1rem;
+          }
+          .demo-h {
+            font-size: 24px;
+            margin-bottom: 1rem;
+          }
+          .demo-p {
+            font-size: 14px;
+          }
+          .quote-section {
+            padding: 2.5rem 1rem;
+          }
+          .quote-emoji {
+            font-size: 48px;
+            margin-bottom: 1rem;
+          }
+          .quote-text {
+            font-size: 24px;
+            margin-bottom: 1rem;
+          }
+          .quote-sub {
+            font-size: 14px;
+            margin-bottom: 2rem;
+          }
+          .quote-stats {
+            gap: 1.5rem;
+            flex-direction: column;
+          }
+          .qs-num {
+            font-size: 28px;
+          }
+          .pricing-section {
+            padding: 2.5rem 1rem;
+          }
+          .pricing-h {
+            font-size: 24px;
+            margin-bottom: 0.5rem;
+          }
+          .pricing-sub {
+            font-size: 14px;
+            margin-bottom: 2rem;
+          }
+          .price-amount {
+            font-size: 36px;
+          }
+          .price-period {
+            font-size: 14px;
+          }
+          .price-desc {
+            font-size: 13px;
+          }
+          .price-features li {
+            font-size: 13px;
+          }
+          .cta-section {
+            padding: 2.5rem 1rem;
+          }
+          .cta-h {
+            font-size: 24px;
+            margin-bottom: 0.75rem;
+          }
+          .cta-p {
+            font-size: 14px;
+            margin-bottom: 1.5rem;
+          }
+          .btn-cta {
+            padding: 14px 24px;
+            font-size: 14px;
+            width: 100%;
+          }
+          .footer {
+            padding: 1.5rem 1rem;
+            font-size: 12px;
+          }
         }
       `}</style>
 

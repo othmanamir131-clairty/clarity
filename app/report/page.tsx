@@ -80,6 +80,19 @@ export default function Report() {
         .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.2); border-top: 2px solid white; border-radius: 50%; animation: spin 0.8s linear infinite; }
         .back-link { font-size: 13px; color: rgba(255,255,255,0.4); cursor: pointer; font-weight: 500; transition: color 0.2s; }
         .back-link:hover { color: rgba(255,255,255,0.7); }
+
+        @media (max-width: 768px) {
+          .report-wrap { padding: 1.25rem !important; }
+          h1 { font-size: 28px !important; letter-spacing: -0.5px !important; }
+          p { font-size: 13px !important; }
+          .generate-btn { padding: 12px 28px !important; font-size: 14px !important; }
+        }
+        @media (max-width: 480px) {
+          .report-wrap { padding: 1rem !important; }
+          h1 { font-size: 24px !important; }
+          .generate-btn { width: 100% !important; }
+          .score-row { flex-direction: column !important; align-items: center !important; text-align: center !important; }
+        }
       `}</style>
 
       {/* Blobs */}
@@ -89,7 +102,7 @@ export default function Report() {
         <div style={{ position: 'absolute', top: '40%', left: '35%', width: '380px', height: '380px', borderRadius: '50%', background: 'rgba(59,7,100,0.4)', filter: 'blur(80px)', animation: 'blob 20s ease-in-out infinite 3s' }} />
       </div>
 
-      <div style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
+      <div className="report-wrap" style={{ minHeight: '100vh', padding: '2.5rem', position: 'relative', zIndex: 1 }}>
         {!profileLoading && !isPro && (
           <UpgradeGate
             title="Pro feature only"
@@ -137,7 +150,7 @@ export default function Report() {
             )}
 
             {generated && score !== null && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+              <div className="score-row" style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
                 {/* Score ring */}
                 <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: `rgba(255,255,255,0.08)`, border: `3px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', flexShrink: 0, boxShadow: `0 0 30px ${scoreGlow}`, animation: 'float 3s ease-in-out infinite' }}>
                   <div style={{ fontSize: '30px', fontWeight: '800', color: scoreColor }}>{score}</div>

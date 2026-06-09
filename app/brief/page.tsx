@@ -53,6 +53,7 @@ export default function ContentBrief() {
   const [copied, setCopied] = useState(false)
   const [savedBriefs, setSavedBriefs] = useState<{ topic: string; platform: string; brief: Brief }[]>([])
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const { loading: profileLoading, isPro } = useProfile()
 
   useEffect(() => {
@@ -171,15 +172,52 @@ Return this exact JSON structure:
   return (
     <div style={{ minHeight: '100vh', fontFamily: 'Plus Jakarta Sans, sans-serif', position: 'relative', display: 'flex' }}>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      <style>{`
+        .brief-overlay {
+          display: none;
+          position: fixed; inset: 0;
+          background: rgba(0,0,0,0.6);
+          z-index: 9;
+          backdrop-filter: blur(8px);
+        }
+        .brief-mobile-bar {
+          display: none;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 1.5rem;
+        }
+        @media (max-width: 768px) {
+          .brief-sidebar {
+            left: -280px !important;
+            transition: left 0.3s ease;
+            width: 260px !important;
+            box-shadow: 4px 0 40px rgba(0,0,0,0.5);
+          }
+          .brief-sidebar.open { left: 0 !important; }
+          .brief-overlay { display: block; }
+          .brief-main { margin-left: 0 !important; padding: 1.25rem !important; }
+          .brief-mobile-bar { display: flex !important; }
+          .brief-grid { grid-template-columns: 1fr !important; }
+          .brief-bottom-row { grid-template-columns: 1fr !important; }
+          .brief-actions { flex-wrap: wrap !important; gap: 6px !important; }
+          h1 { font-size: 22px !important; }
+          p { font-size: 13px !important; }
+        }
+        @media (max-width: 480px) {
+          .brief-main { padding: 1rem !important; }
+          h1 { font-size: 20px !important; }
+        }
+      `}</style>
 
       {/* Background */}
       <div style={{ position: 'fixed', inset: 0, background: 'linear-gradient(160deg, #2e1065 0%, #4c1d95 25%, #1e3a5f 60%, #064e3b 100%)', zIndex: 0 }} />
+      {sidebarOpen && <div className="brief-overlay" onClick={() => setSidebarOpen(false)} />}
       <div style={{ ...BLOB_STYLE, width: 500, height: 500, background: '#7c3aed', top: '-100px', left: '200px' }} />
       <div style={{ ...BLOB_STYLE, width: 400, height: 400, background: '#0d9488', bottom: '0', right: '100px' }} />
       <div style={{ ...BLOB_STYLE, width: 300, height: 300, background: '#4c1d95', top: '40%', left: '40%' }} />
 
       {/* Sidebar */}
-      <aside style={{ ...glassMd, position: 'fixed', left: 0, top: 0, bottom: 0, width: '220px', zIndex: 10, borderRadius: 0, borderLeft: 'none', borderTop: 'none', borderBottom: 'none', display: 'flex', flexDirection: 'column', padding: '24px 16px' }}>
+      <aside className={`brief-sidebar${sidebarOpen ? ' open' : ''}`} style={{ ...glassMd, position: 'fixed', left: 0, top: 0, bottom: 0, width: '220px', zIndex: 10, borderRadius: 0, borderLeft: 'none', borderTop: 'none', borderBottom: 'none', display: 'flex', flexDirection: 'column', padding: '24px 16px' }}>
         <div style={{ fontSize: '20px', fontWeight: 800, marginBottom: '32px', paddingLeft: '8px', background: 'linear-gradient(90deg, #a78bfa, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           ✦ Clarity
         </div>
@@ -200,7 +238,13 @@ Return this exact JSON structure:
       </aside>
 
       {/* Main */}
-      <main style={{ marginLeft: '220px', flex: 1, padding: '32px', position: 'relative', zIndex: 1 }}>
+      <main className="brief-main" style={{ marginLeft: '220px', flex: 1, padding: '32px', position: 'relative', zIndex: 1 }}>
+        {/* Mobile header */}
+        <div className="brief-mobile-bar" style={{ display: 'none', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'white' }}>☰</button>
+          <div style={{ fontSize: '18px', fontWeight: 800, background: 'linear-gradient(90deg, #a78bfa, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>✦ Clarity</div>
+          <div style={{ width: '32px' }} />
+        </div>
         {!profileLoading && !isPro && (
           <UpgradeGate
             title="Pro feature only"
@@ -227,7 +271,7 @@ Return this exact JSON structure:
         </div>
 
         {activeTab === 'generate' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: '24px' }}>
+          <div className="brief-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: '24px' }}>
             {/* Left — Form */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ ...glassMd, padding: '24px' }}>
@@ -298,7 +342,7 @@ Return this exact JSON structure:
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Title & actions */}
                   <div style={{ ...glassMd, padding: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
+                    <div className="brief-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
                       <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#fff', lineHeight: 1.3 }}>{brief.title}</h2>
                       <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                         <button onClick={saveBrief} style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '12px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>💾 Save</button>
@@ -338,7 +382,7 @@ Return this exact JSON structure:
                   </div>
 
                   {/* Bottom row */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className="brief-bottom-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div style={{ ...glassMd, padding: '18px' }}>
                       <div style={{ fontSize: '11px', fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>🔑 Keywords</div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
