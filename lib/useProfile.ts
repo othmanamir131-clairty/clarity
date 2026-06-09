@@ -32,23 +32,24 @@ export function useProfile() {
       }
 
       const { data, error } = await supabase
-        .from<ProfileRow>('profiles')
+        .from('profiles')
         .select('is_pro,is_premium,plan')
         .eq('user_id', user.id)
-        .maybeSingle()
+        .maybeSingle() as { data: ProfileRow | null; error: any }
 
       let currentProfile = data
 
       if (!currentProfile) {
         const { data: inserted, error: insertError } = await supabase
-          .from<ProfileRow>('profiles')
+          .from('profiles')
           .insert({
             user_id: user.id,
             plan: 'free',
             is_pro: false,
             is_premium: false,
           })
-          .single()
+          .select()
+          .single() as { data: ProfileRow | null; error: any }
 
         if (insertError) {
           console.error('Failed to create profile:', insertError)
