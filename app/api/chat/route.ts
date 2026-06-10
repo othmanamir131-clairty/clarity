@@ -22,15 +22,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { message, userId } = await request.json()
+  const { message } = await request.json()
 
-  if (userId) {
-    await supabase.from('ideas').insert({
-      content: message,
-      tag: 'General',
-      user_id: user.id,
-    })
-  }
+  await supabase.from('ideas').insert({
+    content: message,
+    tag: 'General',
+    user_id: user.id,
+  })
 
   const isSpreadsheetRequest = message.toLowerCase().includes('spreadsheet') || 
     message.toLowerCase().includes('excel') || 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { isUserOnboarded } from '../lib/onboarding'
+import { countUserIdeas, fetchUserIdeas } from '../lib/ideas'
 import * as XLSX from 'xlsx'
 
 export default function Home() {
@@ -19,11 +20,11 @@ export default function Home() {
   const [isNewUser, setIsNewUser] = useState(false)
 
   const fetchIdeas = async () => {
-    const { data } = await supabase.from('ideas').select('*').order('created_at', { ascending: false }).limit(3)
-    if (data) setIdeas(data)
-    const { count } = await supabase.from('ideas').select('*', { count: 'exact', head: true })
-    if (count !== null) setIdeasCount(count)
-    if (count && count > 0) setStreak(Math.min(count, 7))
+    const data = await fetchUserIdeas(3)
+    setIdeas(data)
+    const count = await countUserIdeas()
+    setIdeasCount(count)
+    if (count > 0) setStreak(Math.min(count, 7))
   }
 
   useEffect(() => {

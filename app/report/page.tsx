@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { fetchUserIdeas } from '../../lib/ideas'
 import { useProfile } from '../../lib/useProfile'
 import UpgradeGate from '../../lib/UpgradeGate'
 
@@ -17,9 +18,7 @@ export default function Report() {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) window.location.href = '/landing'
       else {
-        supabase.from('ideas').select('*').then(({ data: ideasData }) => {
-          if (ideasData) setIdeas(ideasData)
-        })
+        fetchUserIdeas().then(setIdeas)
       }
     })
   }, [])

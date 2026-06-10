@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { fetchUserIdeas } from '../../lib/ideas'
 
 export default function Ideas() {
   const [ideas, setIdeas] = useState<any[]>([])
@@ -12,8 +13,8 @@ export default function Ideas() {
   const [search, setSearch] = useState('')
 
   const fetchIdeas = async () => {
-    const { data } = await supabase.from('ideas').select('*').order('created_at', { ascending: false })
-    if (data) setIdeas(data)
+    const data = await fetchUserIdeas()
+    setIdeas(data)
     setLoading(false)
   }
 
