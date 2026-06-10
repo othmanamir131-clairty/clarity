@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
+import { deleteOutput, fetchOutputs, saveOutput } from '../../lib/outputs'
 import { useProfile } from '../../lib/useProfile'
 import UpgradeGate from '../../lib/UpgradeGate'
 
@@ -51,15 +52,26 @@ export default function ContentBrief() {
   const [loading, setLoading] = useState(false)
   const [brief, setBrief] = useState<Brief | null>(null)
   const [copied, setCopied] = useState(false)
-  const [savedBriefs, setSavedBriefs] = useState<{ topic: string; platform: string; brief: Brief }[]>([])
+  const [savedBriefs, setSavedBriefs] = useState<{ id: string; topic: string; platform: string; brief: Brief }[]>([])
   const [activeTab, setActiveTab] = useState<'generate' | 'saved'>('generate')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { loading: profileLoading, isPro } = useProfile()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) router.push('/landing')
-      else setUser(data.user)
+      else {
+        setUser(data.user)
+        const rows = await fetchOutputs('brief')
+        setSavedBriefs(
+          rows.map(row => ({
+            id: row.id,
+            topic: (row.payload.topic as string) || row.title || 'Untitled',
+            platform: (row.payload.platform as string) || 'YouTube',
+            brief: row.payload.brief as Brief,
+          }))
+        )
+      }
     })
   }, [router])
 
@@ -123,9 +135,17 @@ Return this exact JSON structure:
     setLoading(false)
   }
 
-  const saveBrief = () => {
+  const saveBrief = async () => {
     if (!brief) return
-    setSavedBriefs(prev => [{ topic, platform, brief }, ...prev])
+    const { data, error } = await saveOutput('brief', brief.title, { topic, platform, brief })
+    if (error || !data) return
+    setSavedBriefs(prev => [{ id: data.id, topic, platform, brief }, ...prev])
+    setActiveTab('saved')
+  }
+
+  const removeBrief = async (id: string) => {
+    await deleteOutput(id)
+    setSavedBriefs(prev => prev.filter(b => b.id !== id))
   }
 
   const copyBrief = () => {
@@ -413,14 +433,17 @@ Return this exact JSON structure:
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {savedBriefs.map((s, i) => (
-                  <div key={i} style={{ ...glassMd, padding: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                {savedBriefs.map(s => (
+                  <div key={s.id} style={{ ...glassMd, padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                       <div>
                         <div style={{ fontWeight: 700, color: '#fff', fontSize: '16px', marginBottom: '4px' }}>{s.brief.title}</div>
                         <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>{s.platform} · {s.topic}</div>
                       </div>
-                      <button onClick={() => { setBrief(s.brief); setTopic(s.topic); setPlatform(s.platform); setActiveTab('generate') }} style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(167,139,250,0.3)', background: 'rgba(167,139,250,0.1)', color: '#c4b5fd', cursor: 'pointer', fontSize: '12px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>View</button>
+                      <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                        <button onClick={() => { setBrief(s.brief); setTopic(s.topic); setPlatform(s.platform); setActiveTab('generate') }} style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(167,139,250,0.3)', background: 'rgba(167,139,250,0.1)', color: '#c4b5fd', cursor: 'pointer', fontSize: '12px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>View</button>
+                        <button onClick={() => removeBrief(s.id)} style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.1)', color: '#fca5a5', cursor: 'pointer', fontSize: '12px', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Delete</button>
+                      </div>
                     </div>
                   </div>
                 ))}

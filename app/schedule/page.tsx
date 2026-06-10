@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { deleteOutput, fetchOutputs, saveOutput } from '../../lib/outputs'
 import { useProfile } from '../../lib/useProfile'
 import UpgradeGate from '../../lib/UpgradeGate'
 
@@ -32,15 +33,28 @@ const getWeekDates = () => {
 export default function Schedule() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
-  const [posts, setPosts] = useState<any[]>([])
+  const [posts, setPosts] = useState<{ id: string; day: number; platform: string; title: string; time: string; notes: string }[]>([])
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ day: 0, platform: PLATFORMS[0].name, title: '', time: '09:00', notes: '' })
   const { loading: profileLoading, isPro } = useProfile()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) window.location.href = '/landing'
-      else setUser(data.user)
+      else {
+        setUser(data.user)
+        const rows = await fetchOutputs('schedule_post')
+        setPosts(
+          rows.map(row => ({
+            id: row.id,
+            day: row.payload.day as number,
+            platform: row.payload.platform as string,
+            title: row.payload.title as string,
+            time: row.payload.time as string,
+            notes: (row.payload.notes as string) || '',
+          }))
+        )
+      }
     })
   }, [])
 
@@ -54,14 +68,19 @@ export default function Schedule() {
     setShowForm(true)
   }
 
-  const addPost = () => {
+  const addPost = async () => {
     if (!form.title.trim()) return
-    setPosts(prev => [...prev, { id: Date.now() + Math.random(), ...form }])
+    const { data, error } = await saveOutput('schedule_post', form.title, { ...form })
+    if (error || !data) return
+    setPosts(prev => [...prev, { id: data.id, ...form }])
     setForm({ day: 0, platform: PLATFORMS[0].name, title: '', time: '09:00', notes: '' })
     setShowForm(false)
   }
 
-  const removePost = (id: number) => setPosts(prev => prev.filter(p => p.id !== id))
+  const removePost = async (id: string) => {
+    await deleteOutput(id)
+    setPosts(prev => prev.filter(p => p.id !== id))
+  }
 
   const glass = {
     background: 'rgba(255,255,255,0.07)',

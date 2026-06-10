@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { isUserOnboarded } from '../lib/onboarding'
 import { countUserIdeas, fetchUserIdeas } from '../lib/ideas'
+import { countOutputs, fetchOutputs } from '../lib/outputs'
 import * as XLSX from 'xlsx'
 
 export default function Home() {
@@ -15,9 +16,18 @@ export default function Home() {
   const [ideas, setIdeas] = useState<any[]>([])
   const [ideasCount, setIdeasCount] = useState(0)
   const [spreadsheetData, setSpreadsheetData] = useState<any>(null)
+  const [outputsCount, setOutputsCount] = useState(0)
+  const [recentSpreadsheets, setRecentSpreadsheets] = useState<any[]>([])
   const [streak, setStreak] = useState(0)
   const [displayName, setDisplayName] = useState('')
   const [isNewUser, setIsNewUser] = useState(false)
+
+  const downloadSpreadsheet = (sheet: { title: string; payload: { headers: string[]; rows: string[][] } }) => {
+    const ws = XLSX.utils.aoa_to_sheet([sheet.payload.headers, ...sheet.payload.rows])
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
+    XLSX.writeFile(wb, `${sheet.title || 'spreadsheet'}.xlsx`)
+  }
 
   const fetchIdeas = async () => {
     const data = await fetchUserIdeas(3)
@@ -25,6 +35,11 @@ export default function Home() {
     const count = await countUserIdeas()
     setIdeasCount(count)
     if (count > 0) setStreak(Math.min(count, 7))
+
+    const outputTotal = await countOutputs()
+    setOutputsCount(outputTotal)
+    const sheets = await fetchOutputs('spreadsheet', 3)
+    setRecentSpreadsheets(sheets)
   }
 
   useEffect(() => {
@@ -474,7 +489,7 @@ export default function Home() {
           <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px' }}>
             {[
               { label: 'Ideas saved',    value: ideasCount.toString(), sub: 'View all →',        icon: '💡', glow: 'rgba(167,139,250,0.3)', path: '/ideas' },
-              { label: 'Outputs created', value: '0',                  sub: 'Ask AI to create',  icon: '📊', glow: 'rgba(52,211,153,0.3)',  path: '/' },
+              { label: 'Outputs created', value: outputsCount.toString(), sub: outputsCount > 0 ? 'View below ↓' : 'Ask AI to create', icon: '📊', glow: 'rgba(52,211,153,0.3)', path: '/' },
               { label: 'Clarity Score',  value: '—',                   sub: 'Get your score →',  icon: '✨', glow: 'rgba(251,191,36,0.3)',  path: '/report' },
             ].map(stat => (
               <div key={stat.label} className="stat-card" onClick={() => window.location.href = stat.path}
@@ -623,6 +638,27 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {recentSpreadsheets.length > 0 && (
+            <div style={{ ...glass, padding: '1.5rem', boxShadow: '0 4px 24px rgba(52,211,153,0.15)' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginBottom: '1rem' }}>📊 Your Spreadsheets</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {recentSpreadsheets.map(sheet => (
+                  <div key={sheet.id} className="tool-row" onClick={() => downloadSpreadsheet(sheet)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>
+                    <span style={{ fontSize: '20px' }}>📊</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{sheet.title || 'Spreadsheet'}</div>
+                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>
+                        {new Date(sheet.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '12px', color: '#34d399', fontWeight: '700' }}>Download →</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* ── PREMIUM CARDS ── */}
           <div className="premium-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '14px' }}>

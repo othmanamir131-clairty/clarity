@@ -73,6 +73,12 @@ export async function POST(request: NextRequest) {
       try {
         const clean = content.text.replace(/```json|```/g, '').trim()
         const parsed = JSON.parse(clean)
+        await supabase.from('outputs').insert({
+          user_id: user.id,
+          type: 'spreadsheet',
+          title: parsed.title,
+          payload: { headers: parsed.headers, rows: parsed.rows },
+        })
         return NextResponse.json({ reply: parsed.message, spreadsheet: parsed })
       } catch {
         return NextResponse.json({ reply: content.text })
