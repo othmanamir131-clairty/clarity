@@ -604,7 +604,7 @@ export default function Home() {
                     backdropFilter: 'blur(10px)',
                   }}>
                     {msg.role === 'ai'
-                      ? <span dangerouslySetInnerHTML={{ __html: msg.content.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>') }} />
+                      ? <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(msg.content.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>')) }}
                       : msg.content}
                   </div>
                 </div>
