@@ -101,6 +101,15 @@ export default function Home() {
     if (data.usage) setAiUsage(data.usage)
     else await fetchAiUsage()
 
+    if (res.status === 429 || data.error === 'daily_limit') {
+      setMessages(prev => prev.slice(0, -1))
+      if (data.reply) {
+        setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
+      }
+      setLoading(false)
+      return
+    }
+
     if (data.reply) {
       setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
     }
@@ -626,10 +635,11 @@ export default function Home() {
               <textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                placeholder="Dump your ideas, tasks, or goals here... (Shift+Enter for new line)"
+                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && !aiAtLimit && sendMessage()}
+                placeholder={aiAtLimit ? 'Daily limit reached — upgrade or try again tomorrow' : 'Dump your ideas, tasks, or goals here... (Shift+Enter for new line)'}
                 rows={2}
-                style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '14px', color: 'white', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5' }}
+                disabled={aiAtLimit}
+                style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '14px', color: 'white', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5', opacity: aiAtLimit ? 0.5 : 1 }}
               />
               <button className="send-btn" onClick={sendMessage} disabled={loading || aiAtLimit}>
                 {loading ? '...' : aiAtLimit ? 'Limit reached' : "Let's go ↑"}

@@ -19,6 +19,6 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const usage = await getAiUsageForUser(user.id)
+  const usage = await getAiUsageForUser(supabase, user.id)
   return NextResponse.json(usage)
 }

@@ -5,7 +5,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { buildUsageStats, dailyLimitMessage } from '../../../lib/aiLimits'
-import { canUseAi, getDailyAiUsage, getUserPlan } from '../../../lib/aiUsageServer'
+import {
+  canUseAi,
+  getUserPlan,
+  incrementAiUsage,
+} from '../../../lib/aiUsageServer'
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -28,7 +32,9 @@ export async function POST(request: NextRequest) {
   }
 
   const { message } = await request.json()
-  const { allowed, stats } = await canUseAi(user.id)
+
+  const plan = await getUserPlan(supabase, user.id)
+  const { allowed, stats } = await canUseAi(supabase, user.id)
 
   if (!allowed) {
     return NextResponse.json(
@@ -47,7 +53,6 @@ export async function POST(request: NextRequest) {
     message.toLowerCase().includes('content calendar') ||
     message.toLowerCase().includes('schedule')
 
-  const plan = await getUserPlan(user.id)
   const priorityNote =
     plan === 'premium'
       ? '\n• This user is on Premium — be especially thorough and fast.'
@@ -89,13 +94,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ reply: 'Something went wrong' })
   }
 
-  await supabase.from('ideas').insert({
+  const { error: ideaError } = await supabase.from('ideas').insert({
     content: message,
     tag: 'General',
     user_id: user.id,
   })
 
-  const usedAfter = await getDailyAiUsage(user.id)
+  if (ideaError) {
+    console.error('Failed to save idea for usage tracking:', ideaError)
+  }
+
+  const usedAfter = await incrementAiUsage(supabase, user.id)
   const usage = buildUsageStats(plan, usedAfter)
 
   if (isSpreadsheetRequest) {

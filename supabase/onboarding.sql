@@ -3,7 +3,9 @@
 ALTER TABLE profiles
   ADD COLUMN IF NOT EXISTS display_name text,
   ADD COLUMN IF NOT EXISTS creator_type text,
-  ADD COLUMN IF NOT EXISTS onboarded boolean DEFAULT false;
+  ADD COLUMN IF NOT EXISTS onboarded boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS ai_messages_today integer DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS ai_usage_date date;
 
 -- Ensure one profile row per user (required for upsert)
 DO $$
