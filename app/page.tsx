@@ -8,6 +8,13 @@ import { countOutputs, fetchOutputs } from '../lib/outputs'
 import { FREE_DAILY_AI_LIMIT, type AiUsageStats } from '../lib/aiLimits'
 import * as XLSX from 'xlsx'
 
+// Escape raw text then apply only safe formatting — no dangerouslySetInnerHTML risk
+const formatAiText = (text: string) =>
+  text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br/>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>')
+
 export default function Home() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<{role: string, content: string}[]>([])
@@ -23,6 +30,7 @@ export default function Home() {
   const [displayName, setDisplayName] = useState('')
   const [isNewUser, setIsNewUser] = useState(false)
   const [aiUsage, setAiUsage] = useState<AiUsageStats | null>(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   const downloadSpreadsheet = (sheet: { title: string; payload: { headers: string[]; rows: string[][] } }) => {
     const ws = XLSX.utils.aoa_to_sheet([sheet.payload.headers, ...sheet.payload.rows])
@@ -84,39 +92,125 @@ export default function Home() {
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
-    if (aiUsage && !aiUsage.unlimited && aiUsage.used >= FREE_DAILY_AI_LIMIT) return
+    if (aiUsage && !aiUsage.unlimited && aiUsage.used >= FREE_DAILY_AI_LIMIT) { setShowUpgradeModal(true); return }
 
     const userMessage = input
     setInput('')
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setLoading(true)
+    setSpreadsheetData(null)
 
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: userMessage }),
-    })
-    const data = await res.json()
+    let res: Response
+    try {
+      res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage }),
+      })
+    } catch {
+      setMessages(prev => [...prev, { role: 'ai', content: 'Network error — check your connection and try again.' }])
+      setLoading(false)
+      return
+    }
 
-    if (data.usage) setAiUsage(data.usage)
+    // ── Streaming: regular chat ──────────────────────────────
+    if (res.headers.get('content-type')?.includes('text/event-stream')) {
+      if (!res.body) {
+        setMessages(prev => [...prev, { role: 'ai', content: 'No response from server. Please try again.' }])
+        setLoading(false)
+        return
+      }
+
+      // Add an empty AI message we'll fill in as chunks arrive
+      setMessages(prev => [...prev, { role: 'ai', content: '' }])
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() ?? ''
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue
+            try {
+              const event = JSON.parse(line.slice(6))
+
+              if (event.type === 'delta') {
+                // Append streamed text to the last AI message
+                setMessages(prev => {
+                  const last = prev[prev.length - 1]
+                  return [...prev.slice(0, -1), { ...last, content: last.content + event.text }]
+                })
+              } else if (event.type === 'done') {
+                if (event.usage) setAiUsage(event.usage)
+                else await fetchAiUsage()
+                setLoading(false)
+                setTimeout(() => fetchIdeas(), 1500)
+              } else if (event.type === 'error') {
+                setMessages(prev => [
+                  ...prev.slice(0, -1),
+                  { role: 'ai', content: event.message ?? 'Something went wrong. Please try again.' },
+                ])
+                setLoading(false)
+              }
+            } catch {
+              // Malformed SSE line — skip
+            }
+          }
+        }
+      } catch {
+        setMessages(prev => [
+          ...prev.slice(0, -1),
+          { role: 'ai', content: 'Connection dropped. Your message was not counted — please try again.' },
+        ])
+        setLoading(false)
+      }
+      return
+    }
+
+    // ── JSON: spreadsheets or error responses ────────────────
+    let data: Record<string, unknown>
+    try {
+      data = await res.json()
+    } catch {
+      setMessages(prev => [...prev, { role: 'ai', content: 'Server returned an invalid response. Please try again.' }])
+      setLoading(false)
+      return
+    }
+
+    if (data.usage) setAiUsage(data.usage as typeof aiUsage)
     else await fetchAiUsage()
 
-    if (res.status === 429 || data.error === 'daily_limit') {
+    if (res.status === 429 || data.error === 'daily_limit' || data.error === 'rate_limited' || data.error === 'token_limit') {
       setMessages(prev => prev.slice(0, -1))
-      if (data.reply) {
-        setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
-      }
+      const errMsg = (data.reply as string) || (data.message as string) || 'Limit reached. Please try again later.'
+      setMessages(prev => [...prev, { role: 'ai', content: errMsg }])
+      setLoading(false)
+      return
+    }
+
+    if (data.error) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'ai', content: (data.message as string) || 'Something went wrong. Please try again.' },
+      ])
       setLoading(false)
       return
     }
 
     if (data.reply) {
-      setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
+      setMessages(prev => [...prev, { role: 'ai', content: data.reply as string }])
     }
 
     setLoading(false)
     if (data.spreadsheet) setSpreadsheetData(data.spreadsheet)
-    else setSpreadsheetData(null)
     setTimeout(() => fetchIdeas(), 1500)
   }
 
@@ -377,6 +471,33 @@ export default function Home() {
 
         {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
 
+        {/* ── UPGRADE MODAL ── */}
+        {showUpgradeModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={() => setShowUpgradeModal(false)}>
+            <div style={{ background: 'linear-gradient(160deg, #2e1065, #1e3a5f)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '28px', padding: '2.5rem', maxWidth: '440px', width: '100%', boxShadow: '0 32px 80px rgba(0,0,0,0.6)', animation: 'fadeUp 0.3s ease', position: 'relative' }} onClick={e => e.stopPropagation()}>
+              <button onClick={() => setShowUpgradeModal(false)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', color: 'white', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>✕</button>
+              <div style={{ fontSize: '40px', marginBottom: '1rem' }}>⚡</div>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: 'white', letterSpacing: '-0.5px', marginBottom: '8px' }}>
+                You've used all {FREE_DAILY_AI_LIMIT} daily messages
+              </div>
+              <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.65, marginBottom: '1.5rem' }}>
+                Free plan resets tomorrow. Upgrade to Pro for <strong style={{ color: 'white' }}>unlimited AI messages</strong>, Clarity Score, Content Brief, and more — for less than $1/day.
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                {['Unlimited AI', 'Clarity Score', 'Content Brief', 'Post Schedule'].map(f => (
+                  <div key={f} style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '100px', padding: '4px 12px', fontSize: '12px', fontWeight: '600', color: '#c4b5fd' }}>{f}</div>
+                ))}
+              </div>
+              <button onClick={() => window.location.href = '/pricing'} style={{ width: '100%', background: 'linear-gradient(135deg, #7c3aed, #0d9488)', border: 'none', borderRadius: '14px', color: 'white', fontSize: '15px', fontWeight: '800', padding: '14px', cursor: 'pointer', fontFamily: 'inherit', marginBottom: '10px' }}>
+                Unlock unlimited for $29.99/mo →
+              </button>
+              <button onClick={() => setShowUpgradeModal(false)} style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '14px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', fontWeight: '600', padding: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                I'll wait until tomorrow
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* ── SIDEBAR ── */}
         <aside
           className={`sidebar ${sidebarOpen ? 'open' : ''}`}
@@ -563,32 +684,38 @@ export default function Home() {
             </div>
 
             {aiAtLimit && (
-              <div style={{ marginBottom: '1rem', padding: '14px 16px', borderRadius: '12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.55 }}>
-                <div style={{ marginBottom: '10px' }}>
-                  Daily limit reached. Free plan includes {FREE_DAILY_AI_LIMIT} AI messages per day. Resets tomorrow.
-                </div>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => window.location.href = '/pricing'}
-                    style={{ background: 'linear-gradient(135deg, #7c3aed, #0d9488)', border: 'none', borderRadius: '999px', color: 'white', fontSize: '13px', fontWeight: 700, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }}
-                  >
-                    Upgrade to Pro
-                  </button>
-                  <button
-                    onClick={() => { setMessages([]); setInput('') }}
-                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '999px', color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: 600, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }}
-                  >
-                    Dismiss
-                  </button>
-                </div>
+              <div style={{ marginBottom: '1rem', padding: '12px 16px', borderRadius: '12px', background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(167,139,250,0.3)', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.55, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                <span>⚡ Daily limit reached — resets tomorrow.</span>
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  style={{ background: 'linear-gradient(135deg, #7c3aed, #0d9488)', border: 'none', borderRadius: '999px', color: 'white', fontSize: '12px', fontWeight: 700, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                >
+                  Unlock unlimited →
+                </button>
               </div>
             )}
 
             {/* messages */}
             <div style={{ flex: 1, minHeight: '160px', display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', marginBottom: '1rem' }}>
               {messages.length === 0 && (
-                <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '14px', textAlign: 'center', padding: '2rem 0', fontStyle: 'italic' }}>
-                  Dump your ideas, tasks, or goals here — the AI organizes everything ✨
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem 0', gap: '12px' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '13px', textAlign: 'center', fontStyle: 'italic' }}>
+                    Dump your ideas, tasks, or goals here — the AI organizes everything ✨
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {[
+                      { emoji: '💡', text: 'Give me 10 video ideas for my niche' },
+                      { emoji: '📅', text: 'Build me a 30-day content calendar' },
+                      { emoji: '🎯', text: 'Help me plan my goals for this week' },
+                    ].map(p => (
+                      <button key={p.text} onClick={() => setInput(p.text)}
+                        style={{ background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '100px', padding: '7px 14px', fontSize: '12px', fontWeight: '600', color: '#c4b5fd', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(167,139,250,0.22)'; e.currentTarget.style.color = 'white' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(167,139,250,0.12)'; e.currentTarget.style.color = '#c4b5fd' }}>
+                        {p.emoji} {p.text}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
               {messages.map((msg, i) => (
@@ -604,7 +731,7 @@ export default function Home() {
                     backdropFilter: 'blur(10px)',
                   }}>
                     {msg.role === 'ai'
-                      ? <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(msg.content.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>')) }}
+                      ? <span dangerouslySetInnerHTML={{ __html: formatAiText(msg.content) }} />
                       : msg.content}
                   </div>
                 </div>

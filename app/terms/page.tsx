@@ -369,9 +369,9 @@ export default function Terms() {
           {/* User Data */}
           <h2>13. User Data</h2>
           <p>
-            You retain all rights to any data you upload or create within Clarity. However, by using our service, you grant us 
-            a license to use your data as necessary to provide the service, including using it to train and improve our AI models 
-            (unless you opt out). We will handle your data in accordance with our Privacy Policy.
+            You retain all rights to any data you upload or create within Clarity. By using our service, you grant us
+            a limited license to use your data solely as necessary to provide the service to you. We do not use your content
+            to train AI models. We will handle your data in accordance with our Privacy Policy.
           </p>
           <p>
             You are responsible for maintaining backups of your data. Clarity is not responsible for loss of data due to service 

@@ -6,12 +6,29 @@ import { fetchUserIdeas } from '../../lib/ideas'
 import { useProfile } from '../../lib/useProfile'
 import UpgradeGate from '../../lib/UpgradeGate'
 
+const formatAiText = (text: string) =>
+  text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br/>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>')
+    .replace(/• /g, '• ')
+
 export default function Report() {
   const [ideas, setIdeas] = useState<any[]>([])
   const [report, setReport] = useState('')
   const [score, setScore] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [generated, setGenerated] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const copyScore = () => {
+    if (score === null) return
+    const text = `My Clarity Score this week: ${score}/100 ${score >= 70 ? '🔥' : score >= 40 ? '💡' : '🌱'}\n\n${report.replace(/\*\*(.*?)\*\*/g, '$1')}\n\n— via Clarity`
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
   const { loading: profileLoading, isPro } = useProfile()
 
   useEffect(() => {
@@ -160,9 +177,14 @@ export default function Report() {
                   <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>
                     {score >= 70 ? "You're crushing it this week 🚀" : score >= 40 ? 'Good momentum — keep going!' : 'Every idea counts — keep dumping!'}
                   </div>
-                  <button onClick={generateReport} style={{ marginTop: '12px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', padding: '7px 16px', fontSize: '12px', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'inherit', transition: 'all 0.2s ease' }}>
-                    🔄 Regenerate
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                    <button onClick={generateReport} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', padding: '7px 16px', fontSize: '12px', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'inherit', transition: 'all 0.2s ease' }}>
+                      🔄 Regenerate
+                    </button>
+                    <button onClick={copyScore} style={{ background: copied ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.1)', border: `1px solid ${copied ? 'rgba(52,211,153,0.4)' : 'rgba(255,255,255,0.2)'}`, borderRadius: '100px', padding: '7px 16px', fontSize: '12px', cursor: 'pointer', color: copied ? '#34d399' : 'rgba(255,255,255,0.6)', fontFamily: 'inherit', transition: 'all 0.2s ease' }}>
+                      {copied ? '✓ Copied!' : '📋 Copy score'}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -174,7 +196,7 @@ export default function Report() {
               <div style={{ fontSize: '14px', fontWeight: '700', color: 'rgba(255,255,255,0.5)', marginBottom: '1.25rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>📋 Your personal report</div>
               <div
                 style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', lineHeight: '1.9' }}
-                dangerouslySetInnerHTML={{ __html: report.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>').replace(/• /g, '• ') }}
+                dangerouslySetInnerHTML={{ __html: formatAiText(report) }}
               />
             </div>
           )}

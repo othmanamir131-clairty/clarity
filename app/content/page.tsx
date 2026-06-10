@@ -4,6 +4,11 @@ import { useState } from 'react'
 import { useProfile } from '../../lib/useProfile'
 import UpgradeGate from '../../lib/UpgradeGate'
 
+const formatAiText = (text: string) =>
+  text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>')
+
 type Tool = 'caption' | 'hashtag' | 'hook'
 
 export default function Content() {
@@ -229,7 +234,7 @@ export default function Content() {
               </div>
               <div
                 style={{ fontSize: '14px', color: 'rgba(255,255,255,0.85)', lineHeight: '1.85', whiteSpace: 'pre-wrap' }}
-                dangerouslySetInnerHTML={{ __html: result.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>') }}
+                dangerouslySetInnerHTML={{ __html: formatAiText(result) }}
               />
               <button
                 onClick={generate}
