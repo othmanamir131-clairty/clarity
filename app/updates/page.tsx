@@ -3,6 +3,18 @@
 const RELEASES = [
   {
     date: 'June 9, 2026',
+    version: 'v1.5',
+    title: 'AI limits & privacy',
+    items: [
+      'Free plan now enforces 5 AI messages per day — counter and block at limit',
+      'Usage badge on the dashboard shows X / 5 used today',
+      'Ideas, spreadsheets, briefs, and schedule posts are private to your account',
+      'Upgrade banner and input lock when you hit the daily limit',
+      'Back buttons added on upgrade and pricing screens',
+    ],
+  },
+  {
+    date: 'June 9, 2026',
     version: 'v1.4',
     title: 'Onboarding & mobile polish',
     items: [
