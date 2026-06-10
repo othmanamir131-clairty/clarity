@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { getPostAuthPath } from '../../../lib/auth'
 
 export default function AuthConfirm() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -19,15 +20,16 @@ export default function AuthConfirm() {
       return
     }
 
-    supabase.auth.verifyOtp({ token_hash, type: type as 'signup' | 'email' }).then(({ error }) => {
+    supabase.auth.verifyOtp({ token_hash, type: type as 'signup' | 'email' }).then(async ({ error }) => {
       if (error) {
         setStatus('error')
         setMessage(error.message || 'Confirmation failed. Please try again.')
         setTimeout(() => { window.location.href = '/login' }, 3000)
       } else {
         setStatus('success')
-        setMessage('Account confirmed! Taking you to the dashboard...')
-        setTimeout(() => { window.location.href = '/' }, 1500)
+        setMessage('Account confirmed! Setting up your workspace...')
+        const nextPath = await getPostAuthPath()
+        setTimeout(() => { window.location.href = nextPath }, 1500)
       }
     })
   }, [])

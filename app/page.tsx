@@ -14,6 +14,8 @@ export default function Home() {
   const [ideasCount, setIdeasCount] = useState(0)
   const [spreadsheetData, setSpreadsheetData] = useState<any>(null)
   const [streak, setStreak] = useState(0)
+  const [displayName, setDisplayName] = useState('')
+  const [isNewUser, setIsNewUser] = useState(false)
 
   const fetchIdeas = async () => {
     const { data } = await supabase.from('ideas').select('*').order('created_at', { ascending: false }).limit(3)
@@ -24,11 +26,32 @@ export default function Home() {
   }
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) window.location.href = '/landing'
-      else { setUser(data.user); fetchIdeas() }
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) {
+        window.location.href = '/landing'
+        return
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarded, display_name')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+
+      if (!profile?.onboarded) {
+        window.location.href = '/onboarding'
+        return
+      }
+
+      setUser(data.user)
+      setDisplayName(profile?.display_name || data.user.email?.split('@')[0] || 'there')
+      await fetchIdeas()
     })
   }, [])
+
+  useEffect(() => {
+    setIsNewUser(ideasCount === 0)
+  }, [ideasCount])
 
   const sendMessage = async () => {
     if (!input.trim()) return
@@ -214,7 +237,7 @@ export default function Home() {
             position: fixed !important;
             left: -280px !important;
             top: 0; height: 100vh; z-index: 100;
-            transition: left 0.3s ease;
+            transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
             width: 260px !important;
             box-shadow: 4px 0 40px rgba(0,0,0,0.5);
           }
@@ -342,6 +365,7 @@ export default function Home() {
 
           <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '16px 14px 8px', marginTop: '8px' }}>Account</div>
           <div className="nav-item" onClick={() => window.location.href = '/pricing'}><span style={{ fontSize: '16px' }}>💳</span> Upgrade</div>
+          <div className="nav-item" onClick={() => window.location.href = '/updates'}><span style={{ fontSize: '16px' }}>✨</span> What&apos;s new</div>
           <div className="nav-item" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/landing' }} style={{ color: '#fca5a5' }}>
             <span style={{ fontSize: '16px' }}>🚪</span> Sign out
           </div>
@@ -358,7 +382,7 @@ export default function Home() {
                 {user?.email?.slice(0,2).toUpperCase() || 'ME'}
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: '13px', fontWeight: '700', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email?.split('@')[0] || 'User'}</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName || user?.email?.split('@')[0] || 'User'}</div>
                 <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || ''}</div>
               </div>
             </div>
@@ -380,7 +404,7 @@ export default function Home() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
             <div>
               <h1 style={{ fontSize: '34px', fontWeight: '800', color: 'white', letterSpacing: '-1px', lineHeight: '1.1', textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
-                {greeting()}, <span style={{ background: 'linear-gradient(135deg, #a78bfa, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{user?.email?.split('@')[0] || 'there'}</span> 👋
+                {greeting()}, <span style={{ background: 'linear-gradient(135deg, #a78bfa, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{displayName || user?.email?.split('@')[0] || 'there'}</span> 👋
               </h1>
               <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', marginTop: '6px', fontWeight: '500' }}>
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -393,6 +417,23 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {isNewUser && (
+            <div style={{ ...glass, padding: '1.5rem 1.75rem', border: '1px solid rgba(167,139,250,0.25)', boxShadow: '0 8px 32px rgba(124,58,237,0.2)' }}>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: '#c4b5fd', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Welcome to Clarity</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '8px' }}>Your workspace is ready — start with your first brain dump</div>
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginBottom: '14px' }}>
+                Type anything below — ideas, tasks, content plans — and Clarity will organize it for you.
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {['Make me a content calendar', 'Help me plan my next video', 'Organize my ideas'].map(prompt => (
+                  <button key={prompt} className="chip" onClick={() => setInput(prompt)} style={{ cursor: 'pointer' }}>
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* ── TODAY'S FOCUS ── */}
           <div style={{ ...glass, padding: '2rem 2.25rem', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.25)' }}>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { getAuthConfirmUrl, getPostAuthPath } from '../../lib/auth'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -15,13 +16,17 @@ export default function Login() {
     setMessage('')
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: getAuthConfirmUrl() },
+      })
       if (error) setMessage(error.message)
       else setMessage('Check your email! Click the confirmation link to activate your account.')
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setMessage(error.message)
-      else window.location.href = '/'
+      else window.location.href = await getPostAuthPath()
     }
     setLoading(false)
   }
