@@ -17,7 +17,7 @@ export default function Login() {
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({ email, password })
       if (error) setMessage(error.message)
-      else setMessage('Check your email to confirm your account!')
+      else setMessage('Check your email! Click the confirmation link to activate your account.')
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setMessage(error.message)

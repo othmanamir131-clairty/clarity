@@ -26,6 +26,91 @@ export default function Landing() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const featureMockups = [
+    // AI Brain Dump — mini chat interface
+    <div key="m0" style={{ background: 'rgba(124,58,237,0.07)', borderRadius: '12px', padding: '10px', height: '88px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', borderRadius: '10px 10px 2px 10px', padding: '5px 9px', fontSize: '9px', color: 'white', fontWeight: '600', maxWidth: '80%' }}>
+          I want to grow my TikTok...
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: '5px', alignItems: 'flex-start' }}>
+        <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #34d399)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '7px', color: 'white', fontWeight: '800' }}>✦</div>
+        <div style={{ background: 'white', borderRadius: '2px 10px 10px 10px', padding: '5px 8px', fontSize: '8px', color: '#4c1d95', fontWeight: '600', border: '1px solid rgba(124,58,237,0.12)', flex: 1, lineHeight: 1.5 }}>
+          Here's your growth plan:<br />
+          <span style={{ color: '#7c3aed' }}>• Post 4x/week</span> · Best time 6–8pm
+        </div>
+      </div>
+    </div>,
+
+    // Clarity Score — score widget
+    <div key="m1" style={{ background: 'rgba(16,185,129,0.07)', borderRadius: '12px', padding: '12px 14px', height: '88px', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '9px' }}>
+        <div style={{ fontSize: '30px', fontWeight: '800', background: 'linear-gradient(135deg, #059669, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1 }}>87</div>
+        <div>
+          <div style={{ fontSize: '9px', fontWeight: '800', color: '#059669', letterSpacing: '0.05em' }}>CLARITY SCORE</div>
+          <div style={{ fontSize: '9px', color: '#6b7280', marginTop: '2px' }}>This week · +12 from last</div>
+        </div>
+      </div>
+      <div style={{ background: 'rgba(16,185,129,0.12)', borderRadius: '100px', height: '6px', width: '100%', overflow: 'hidden' }}>
+        <div style={{ background: 'linear-gradient(135deg, #059669, #34d399)', borderRadius: '100px', height: '100%', width: '87%' }} />
+      </div>
+    </div>,
+
+    // Spreadsheets — mini table
+    <div key="m2" style={{ background: 'rgba(245,158,11,0.07)', borderRadius: '12px', padding: '10px', height: '88px', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '3px' }}>
+        {['Day', 'Platform', 'Type'].map(h => (
+          <div key={h} style={{ background: 'rgba(245,158,11,0.2)', borderRadius: '4px', padding: '3px 5px', fontSize: '8px', fontWeight: '700', color: '#d97706', textAlign: 'center' }}>{h}</div>
+        ))}
+        {['Mon', 'TikTok', 'Tutorial', 'Wed', 'Instagram', 'Reel', 'Fri', 'YouTube', 'Vlog'].map((c, i) => (
+          <div key={i} style={{ background: 'rgba(255,255,255,0.7)', borderRadius: '4px', padding: '3px 5px', fontSize: '8px', color: '#92400e', textAlign: 'center', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c}</div>
+        ))}
+      </div>
+    </div>,
+
+    // Video Analysis — player + stats
+    <div key="m3" style={{ background: 'rgba(236,72,153,0.07)', borderRadius: '12px', padding: '10px', height: '88px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+      <div style={{ background: 'linear-gradient(135deg, #1a0a2e, #2d1b4e)', borderRadius: '8px', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: '8px solid #db2777', marginLeft: '2px' }} />
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: '5px' }}>
+        {['12 Hooks', '8 Ideas', '20 Tags'].map(label => (
+          <div key={label} style={{ background: 'rgba(236,72,153,0.15)', borderRadius: '6px', padding: '3px 7px', fontSize: '8px', fontWeight: '700', color: '#db2777', flex: 1, textAlign: 'center' }}>{label}</div>
+        ))}
+      </div>
+    </div>,
+
+    // Content Tools — caption writer
+    <div key="m4" style={{ background: 'rgba(59,130,246,0.07)', borderRadius: '12px', padding: '10px', height: '88px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ display: 'flex', gap: '4px' }}>
+        {['Caption', 'Hook', '#Tags'].map((t, i) => (
+          <div key={i} style={{ background: i === 0 ? '#3b82f6' : 'rgba(59,130,246,0.12)', borderRadius: '100px', padding: '2px 8px', fontSize: '8px', fontWeight: '700', color: i === 0 ? 'white' : '#1d4ed8' }}>{t}</div>
+        ))}
+      </div>
+      <div style={{ background: 'white', borderRadius: '6px', padding: '6px 8px', border: '1px solid rgba(59,130,246,0.15)', fontSize: '8px', color: '#374151', lineHeight: 1.5, flex: 1 }}>
+        Ready to level up your fitness game? 💪 Here's why consistency beats intensity...
+      </div>
+    </div>,
+
+    // Ideas Library — card grid
+    <div key="m5" style={{ background: 'rgba(124,58,237,0.07)', borderRadius: '12px', padding: '8px', height: '88px', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
+      {[
+        { color: '#a78bfa', text: 'TikTok series idea' },
+        { color: '#34d399', text: 'Brand deal pitch' },
+        { color: '#fbbf24', text: '30-day challenge' },
+        { color: '#f472b6', text: 'Collab strategy' },
+      ].map((card, i) => (
+        <div key={i} style={{ background: 'white', borderRadius: '6px', padding: '5px 6px', border: '1px solid rgba(124,58,237,0.1)', overflow: 'hidden' }}>
+          <div style={{ height: '3px', background: card.color, borderRadius: '100px', marginBottom: '4px', width: '55%' }} />
+          <div style={{ fontSize: '7px', fontWeight: '600', color: '#374151', lineHeight: 1.3 }}>{card.text}</div>
+        </div>
+      ))}
+    </div>,
+  ]
+
   const features = [
     { emoji: '🧠', title: 'AI Brain Dump', color: '#a78bfa' },
     { emoji: '✨', title: 'Clarity Score', color: '#34d399' },
@@ -754,7 +839,7 @@ export default function Landing() {
             ].map((f, i) => (
               <div key={i} className="feat-card" style={{ background: f.bg, border: `1.5px solid ${f.border}` }}>
                 <div className="feat-card-inner">
-                  <div className="feat-emoji">{f.emoji}</div>
+                  <div style={{ marginBottom: '14px' }}>{featureMockups[i]}</div>
                   <span className="feat-tag" style={{ background: f.tagBg, color: f.tagColor }}>{f.tag}</span>
                   <div className="feat-title">{f.title}</div>
                   <p className="feat-desc">{f.desc}</p>
