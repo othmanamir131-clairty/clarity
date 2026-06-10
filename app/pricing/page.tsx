@@ -139,17 +139,24 @@ export default function Pricing() {
         }
 
         .back-link {
-          font-size: 13px;
-          color: rgba(255,255,255,0.3);
+          font-size: 14px;
+          color: rgba(255,255,255,0.75);
           cursor: pointer;
-          transition: color 0.2s;
-          font-weight: 500;
-          display: inline-block;
+          transition: all 0.2s;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
           margin-bottom: 2rem;
+          padding: 10px 18px;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.2);
+          background: rgba(255,255,255,0.08);
         }
 
         .back-link:hover {
-          color: rgba(255,255,255,0.6);
+          color: white;
+          background: rgba(255,255,255,0.14);
         }
 
         .pricing-title {

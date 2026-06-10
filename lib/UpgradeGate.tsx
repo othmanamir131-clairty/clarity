@@ -44,21 +44,40 @@ export default function UpgradeGate({
         <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.75)', marginBottom: '24px', lineHeight: 1.7 }}>
           {message}
         </p>
-        <button
-          onClick={() => { window.location.href = '/pricing' }}
-          style={{
-            background: 'linear-gradient(135deg, #a78bfa, #34d399)',
-            border: 'none',
-            borderRadius: '999px',
-            color: 'white',
-            fontSize: '15px',
-            fontWeight: 700,
-            padding: '14px 28px',
-            cursor: 'pointer',
-          }}
-        >
-          Upgrade to {planLabel}
-        </button>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => { window.location.href = '/' }}
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: '999px',
+              color: 'rgba(255,255,255,0.85)',
+              fontSize: '15px',
+              fontWeight: 600,
+              padding: '14px 24px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            ← Back to dashboard
+          </button>
+          <button
+            onClick={() => { window.location.href = '/pricing' }}
+            style={{
+              background: 'linear-gradient(135deg, #a78bfa, #34d399)',
+              border: 'none',
+              borderRadius: '999px',
+              color: 'white',
+              fontSize: '15px',
+              fontWeight: 700,
+              padding: '14px 28px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Upgrade to {planLabel}
+          </button>
+        </div>
       </div>
     </div>
   )

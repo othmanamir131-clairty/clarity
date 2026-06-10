@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import { isUserOnboarded } from '../lib/onboarding'
 import { countUserIdeas, fetchUserIdeas } from '../lib/ideas'
 import { countOutputs, fetchOutputs } from '../lib/outputs'
-import type { AiUsageStats } from '../lib/aiLimits'
+import { FREE_DAILY_AI_LIMIT, type AiUsageStats } from '../lib/aiLimits'
 import * as XLSX from 'xlsx'
 
 export default function Home() {
@@ -84,7 +84,7 @@ export default function Home() {
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
-    if (aiUsage && !aiUsage.unlimited && aiUsage.remaining === 0) return
+    if (aiUsage && !aiUsage.unlimited && aiUsage.used >= FREE_DAILY_AI_LIMIT) return
 
     const userMessage = input
     setInput('')
@@ -99,6 +99,7 @@ export default function Home() {
     const data = await res.json()
 
     if (data.usage) setAiUsage(data.usage)
+    else await fetchAiUsage()
 
     if (data.reply) {
       setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
@@ -110,7 +111,9 @@ export default function Home() {
     setTimeout(() => fetchIdeas(), 1500)
   }
 
-  const aiAtLimit = Boolean(aiUsage && !aiUsage.unlimited && aiUsage.remaining === 0)
+  const aiAtLimit = Boolean(
+    aiUsage && !aiUsage.unlimited && aiUsage.used >= FREE_DAILY_AI_LIMIT
+  )
 
   const greeting = () => {
     const h = new Date().getHours()
@@ -545,15 +548,30 @@ export default function Home() {
                 {aiUsage?.unlimited
                   ? aiUsage.plan === 'premium' ? '✦ Unlimited AI · Priority' : '✦ Unlimited AI'
                   : aiUsage
-                    ? `${aiUsage.remaining} of ${aiUsage.limit} left today`
+                    ? `${aiUsage.used} / ${aiUsage.limit} used today`
                     : 'AI • Loading...'}
               </span>
             </div>
 
             {aiAtLimit && (
-              <div style={{ marginBottom: '1rem', padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.55 }}>
-                Daily limit reached. Free plan includes 5 AI messages per day.{' '}
-                <span onClick={() => window.location.href = '/pricing'} style={{ color: '#c4b5fd', fontWeight: '700', cursor: 'pointer' }}>Upgrade to Pro for unlimited AI →</span>
+              <div style={{ marginBottom: '1rem', padding: '14px 16px', borderRadius: '12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.55 }}>
+                <div style={{ marginBottom: '10px' }}>
+                  Daily limit reached. Free plan includes {FREE_DAILY_AI_LIMIT} AI messages per day. Resets tomorrow.
+                </div>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => window.location.href = '/pricing'}
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #0d9488)', border: 'none', borderRadius: '999px', color: 'white', fontSize: '13px', fontWeight: 700, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    Upgrade to Pro
+                  </button>
+                  <button
+                    onClick={() => { setMessages([]); setInput('') }}
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '999px', color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: 600, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    Dismiss
+                  </button>
+                </div>
               </div>
             )}
 

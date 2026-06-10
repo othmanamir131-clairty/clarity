@@ -5,12 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { buildUsageStats, dailyLimitMessage } from '../../../lib/aiLimits'
-import {
-  canUseAi,
-  getUserPlan,
-  recordAiUsage,
-  getDailyAiUsage,
-} from '../../../lib/aiUsageServer'
+import { canUseAi, getDailyAiUsage, getUserPlan } from '../../../lib/aiUsageServer'
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -94,15 +89,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ reply: 'Something went wrong' })
   }
 
-  await recordAiUsage(user.id)
-  const usedAfter = (await getDailyAiUsage(user.id))
-  const usage = buildUsageStats(plan, usedAfter)
-
   await supabase.from('ideas').insert({
     content: message,
     tag: 'General',
     user_id: user.id,
   })
+
+  const usedAfter = await getDailyAiUsage(user.id)
+  const usage = buildUsageStats(plan, usedAfter)
 
   if (isSpreadsheetRequest) {
     try {

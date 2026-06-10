@@ -19,20 +19,20 @@ export async function getUserPlan(userId: string): Promise<UserPlan> {
   return 'free'
 }
 
+/** Count today's AI messages via ideas saved by /api/chat */
 export async function getDailyAiUsage(userId: string) {
   const { count, error } = await supabaseServer
-    .from('ai_usage')
+    .from('ideas')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
     .gte('created_at', startOfTodayUtc())
 
-  if (error) console.error('Failed to count AI usage:', error)
-  return count ?? 0
-}
+  if (error) {
+    console.error('Failed to count daily AI usage:', error)
+    return 0
+  }
 
-export async function recordAiUsage(userId: string) {
-  const { error } = await supabaseServer.from('ai_usage').insert({ user_id: userId })
-  if (error) console.error('Failed to record AI usage:', error)
+  return count ?? 0
 }
 
 export async function getAiUsageForUser(userId: string) {
@@ -43,7 +43,7 @@ export async function getAiUsageForUser(userId: string) {
 
 export async function canUseAi(userId: string) {
   const stats = await getAiUsageForUser(userId)
-  const allowed = stats.unlimited || (stats.remaining ?? 0) > 0
+  const allowed = stats.unlimited || stats.used < FREE_DAILY_AI_LIMIT
   return { allowed, stats }
 }
 
