@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { completeOnboarding, isUserOnboarded } from '../../lib/onboarding'
 
 const CREATOR_TYPES = [
   { id: 'youtube',   label: 'YouTuber',   emoji: '▶️', desc: 'Long & short-form video' },
@@ -23,6 +24,7 @@ export default function Onboarding() {
   const [name, setName]               = useState('')
   const [creatorType, setCreatorType] = useState('')
   const [saving, setSaving]           = useState(false)
+  const [saveError, setSaveError]     = useState('')
   const [user, setUser]               = useState<any>(null)
 
   useEffect(() => {
@@ -35,9 +37,15 @@ export default function Onboarding() {
         .eq('user_id', data.user.id)
         .maybeSingle()
         .then(({ data: profile }) => {
-          if (profile?.onboarded) window.location.href = '/'
-          // Pre-fill name from user metadata if available
-          if (data.user.user_metadata?.display_name) setName(data.user.user_metadata.display_name)
+          if (isUserOnboarded(data.user, profile)) {
+            window.location.href = '/'
+            return
+          }
+          if (data.user.user_metadata?.display_name) {
+            setName(data.user.user_metadata.display_name as string)
+          } else if (profile?.display_name) {
+            setName(profile.display_name)
+          }
         })
     })
   }, [])
@@ -45,16 +53,22 @@ export default function Onboarding() {
   const saveAndComplete = async () => {
     if (!user || !creatorType) return
     setSaving(true)
-    await supabase.from('profiles').upsert({
-      user_id:      user.id,
-      display_name: name.trim() || user.email?.split('@')[0] || 'Creator',
-      creator_type: creatorType,
-      onboarded:    true,
-      plan:         'free',
-      is_pro:       false,
-      is_premium:   false,
-    }, { onConflict: 'user_id' })
+    setSaveError('')
+
+    const result = await completeOnboarding({
+      userId: user.id,
+      email: user.email,
+      displayName: name,
+      creatorType,
+    })
+
     setSaving(false)
+
+    if (!result.ok) {
+      setSaveError(result.error || 'Could not save your profile. Please try again.')
+      return
+    }
+
     setStep(3)
   }
 
@@ -265,6 +279,12 @@ export default function Onboarding() {
                   </div>
                 ))}
               </div>
+
+              {saveError && (
+                <div style={{ fontSize: '13px', color: '#fca5a5', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', padding: '10px 14px', marginBottom: '12px', lineHeight: 1.5 }}>
+                  {saveError}
+                </div>
+              )}
 
               <button className="ob-btn" onClick={saveAndComplete} disabled={!creatorType || saving}>
                 {saving ? 'Setting up...' : 'Launch my workspace →'}

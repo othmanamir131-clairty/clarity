@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { isUserOnboarded } from './onboarding'
 
 export function getAuthConfirmUrl() {
   const base =
@@ -20,6 +21,6 @@ export async function getPostAuthPath(): Promise<string> {
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (!profile?.onboarded) return '/onboarding'
+  if (!isUserOnboarded(user, profile)) return '/onboarding'
   return '/'
 }

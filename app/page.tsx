@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { isUserOnboarded } from '../lib/onboarding'
 import * as XLSX from 'xlsx'
 
 export default function Home() {
@@ -38,13 +39,18 @@ export default function Home() {
         .eq('user_id', data.user.id)
         .maybeSingle()
 
-      if (!profile?.onboarded) {
+      if (!isUserOnboarded(data.user, profile)) {
         window.location.href = '/onboarding'
         return
       }
 
       setUser(data.user)
-      setDisplayName(profile?.display_name || data.user.email?.split('@')[0] || 'there')
+      setDisplayName(
+        profile?.display_name ||
+          (data.user.user_metadata?.display_name as string | undefined) ||
+          data.user.email?.split('@')[0] ||
+          'there'
+      )
       await fetchIdeas()
     })
   }, [])
