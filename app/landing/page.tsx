@@ -914,9 +914,9 @@ export default function Landing() {
           <p className="pricing-sub">No hidden fees. Cancel anytime. Switch plans whenever.</p>
           <div className="pricing-cards">
             {[
-              { name: 'Free', price: '$0', period: '', desc: 'Perfect to get started', features: ['Basic AI organizing', '5 ideas per day', 'Dashboard access', 'Ideas library'], btn: 'Get started free', featured: false },
-              { name: 'Pro', price: '$29.99', period: '/mo', desc: 'For serious creators', features: ['Unlimited AI', 'Spreadsheet generator', 'Content calendar', 'Clarity Score', 'Content tools', 'Daily Focus'], btn: 'Start Pro', featured: true },
-              { name: 'Premium', price: '$59.99', period: '/mo', desc: 'For power users', features: ['Everything in Pro', 'Video analysis', 'AI Content Brief', 'Posting Schedule', 'Priority support'], btn: 'Start Premium', featured: false },
+              { name: 'Free', price: '$0', period: '', desc: 'Perfect to get started', features: ['5 AI messages per day', 'Dashboard & ideas library', 'AI brain dump', 'Spreadsheet downloads'], btn: 'Get started free', featured: false },
+              { name: 'Pro', price: '$29.99', period: '/mo', desc: 'For serious creators', features: ['Unlimited AI messages', 'Clarity Score & Content Tools', 'Spreadsheet generator', 'Content Brief & Post Schedule'], btn: 'Start Pro', featured: true },
+              { name: 'Premium', price: '$59.99', period: '/mo', desc: 'For power users', features: ['Everything in Pro', 'Unlimited AI + priority', 'Video Analysis', 'Early access to new features'], btn: 'Start Premium', featured: false },
             ].map(plan => (
               <div key={plan.name} className={`price-card ${plan.featured ? 'featured' : ''}`}>
                 {plan.featured && <div className="price-badge">⭐ MOST POPULAR</div>}

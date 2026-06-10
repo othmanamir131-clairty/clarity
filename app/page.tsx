@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { isUserOnboarded } from '../lib/onboarding'
 import { countUserIdeas, fetchUserIdeas } from '../lib/ideas'
 import { countOutputs, fetchOutputs } from '../lib/outputs'
+import type { AiUsageStats } from '../lib/aiLimits'
 import * as XLSX from 'xlsx'
 
 export default function Home() {
@@ -21,12 +22,18 @@ export default function Home() {
   const [streak, setStreak] = useState(0)
   const [displayName, setDisplayName] = useState('')
   const [isNewUser, setIsNewUser] = useState(false)
+  const [aiUsage, setAiUsage] = useState<AiUsageStats | null>(null)
 
   const downloadSpreadsheet = (sheet: { title: string; payload: { headers: string[]; rows: string[][] } }) => {
     const ws = XLSX.utils.aoa_to_sheet([sheet.payload.headers, ...sheet.payload.rows])
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
     XLSX.writeFile(wb, `${sheet.title || 'spreadsheet'}.xlsx`)
+  }
+
+  const fetchAiUsage = async () => {
+    const res = await fetch('/api/ai-usage')
+    if (res.ok) setAiUsage(await res.json())
   }
 
   const fetchIdeas = async () => {
@@ -67,7 +74,7 @@ export default function Home() {
           data.user.email?.split('@')[0] ||
           'there'
       )
-      await fetchIdeas()
+      await Promise.all([fetchIdeas(), fetchAiUsage()])
     })
   }, [])
 
@@ -76,24 +83,34 @@ export default function Home() {
   }, [ideasCount])
 
   const sendMessage = async () => {
-    if (!input.trim()) return
+    if (!input.trim() || loading) return
+    if (aiUsage && !aiUsage.unlimited && aiUsage.remaining === 0) return
+
     const userMessage = input
     setInput('')
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setLoading(true)
-    const { data: authData } = await supabase.auth.getUser()
+
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: userMessage, userId: authData?.user?.id }),
+      body: JSON.stringify({ message: userMessage }),
     })
     const data = await res.json()
-    setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
+
+    if (data.usage) setAiUsage(data.usage)
+
+    if (data.reply) {
+      setMessages(prev => [...prev, { role: 'ai', content: data.reply }])
+    }
+
     setLoading(false)
     if (data.spreadsheet) setSpreadsheetData(data.spreadsheet)
     else setSpreadsheetData(null)
     setTimeout(() => fetchIdeas(), 1500)
   }
+
+  const aiAtLimit = Boolean(aiUsage && !aiUsage.unlimited && aiUsage.remaining === 0)
 
   const greeting = () => {
     const h = new Date().getHours()
@@ -524,8 +541,21 @@ export default function Home() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
               <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#34d399', display: 'inline-block', animation: 'pulse 2s ease infinite', boxShadow: '0 0 12px rgba(52,211,153,0.8)' }} />
               <span style={{ fontSize: '15px', fontWeight: '700', color: 'white' }}>What's on your mind?</span>
-              <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontWeight: '600', background: 'rgba(255,255,255,0.08)', padding: '3px 10px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.1)' }}>AI • Always on</span>
+              <span style={{ marginLeft: 'auto', fontSize: '11px', color: aiAtLimit ? '#fca5a5' : 'rgba(255,255,255,0.45)', fontWeight: '600', background: aiAtLimit ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.08)', padding: '3px 10px', borderRadius: '100px', border: `1px solid ${aiAtLimit ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.1)'}` }}>
+                {aiUsage?.unlimited
+                  ? aiUsage.plan === 'premium' ? '✦ Unlimited AI · Priority' : '✦ Unlimited AI'
+                  : aiUsage
+                    ? `${aiUsage.remaining} of ${aiUsage.limit} left today`
+                    : 'AI • Loading...'}
+              </span>
             </div>
+
+            {aiAtLimit && (
+              <div style={{ marginBottom: '1rem', padding: '12px 14px', borderRadius: '12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.55 }}>
+                Daily limit reached. Free plan includes 5 AI messages per day.{' '}
+                <span onClick={() => window.location.href = '/pricing'} style={{ color: '#c4b5fd', fontWeight: '700', cursor: 'pointer' }}>Upgrade to Pro for unlimited AI →</span>
+              </div>
+            )}
 
             {/* messages */}
             <div style={{ flex: 1, minHeight: '160px', display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', marginBottom: '1rem' }}>
@@ -583,8 +613,8 @@ export default function Home() {
                 rows={2}
                 style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '14px', color: 'white', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5' }}
               />
-              <button className="send-btn" onClick={sendMessage}>
-                {loading ? '...' : "Let's go ↑"}
+              <button className="send-btn" onClick={sendMessage} disabled={loading || aiAtLimit}>
+                {loading ? '...' : aiAtLimit ? 'Limit reached' : "Let's go ↑"}
               </button>
             </div>
           </div>
