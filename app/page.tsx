@@ -31,6 +31,8 @@ export default function Home() {
   const [isNewUser, setIsNewUser] = useState(false)
   const [aiUsage, setAiUsage] = useState<AiUsageStats | null>(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showUpgradeSuccess, setShowUpgradeSuccess] = useState(false)
+  const [upgradedPlan, setUpgradedPlan] = useState<'pro' | 'premium' | null>(null)
 
   const downloadSpreadsheet = (sheet: { title: string; payload: { headers: string[]; rows: string[][] } }) => {
     const ws = XLSX.utils.aoa_to_sheet([sheet.payload.headers, ...sheet.payload.rows])
@@ -83,6 +85,32 @@ export default function Home() {
           'there'
       )
       await Promise.all([fetchIdeas(), fetchAiUsage()])
+
+      // Handle post-Stripe-checkout redirect (?upgraded=true)
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('upgraded') === 'true') {
+        // Clean the URL immediately so refreshing doesn't re-trigger
+        window.history.replaceState({}, '', '/')
+        // Webhook fires async — poll until the profile plan is updated
+        let attempts = 0
+        const pollForPlanUpgrade = async () => {
+          const { data: updatedProfile } = await supabase
+            .from('profiles')
+            .select('plan')
+            .eq('user_id', data.user.id)
+            .maybeSingle()
+          const plan = updatedProfile?.plan
+          if (plan === 'pro' || plan === 'premium') {
+            setUpgradedPlan(plan)
+            setShowUpgradeSuccess(true)
+            setTimeout(() => setShowUpgradeSuccess(false), 8000)
+          } else if (attempts < 10) {
+            attempts++
+            setTimeout(pollForPlanUpgrade, 2000) // retry every 2s, up to 20s
+          }
+        }
+        pollForPlanUpgrade()
+      }
     })
   }, [])
 
@@ -495,6 +523,22 @@ export default function Home() {
                 I'll wait until tomorrow
               </button>
             </div>
+          </div>
+        )}
+
+        {/* ── UPGRADE SUCCESS BANNER ── */}
+        {showUpgradeSuccess && upgradedPlan && (
+          <div style={{ position: 'fixed', top: '1.25rem', left: '50%', transform: 'translateX(-50%)', zIndex: 300, display: 'flex', alignItems: 'center', gap: '12px', background: 'linear-gradient(135deg, rgba(16,185,129,0.95), rgba(5,150,105,0.95))', backdropFilter: 'blur(16px)', border: '1px solid rgba(52,211,153,0.4)', borderRadius: '16px', padding: '14px 20px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', animation: 'fadeUp 0.4s ease', maxWidth: '420px', width: 'calc(100% - 2rem)' }}>
+            <div style={{ fontSize: '28px', flexShrink: 0 }}>🎉</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '15px', fontWeight: '800', color: 'white', marginBottom: '2px' }}>
+                Welcome to {upgradedPlan.charAt(0).toUpperCase() + upgradedPlan.slice(1)}!
+              </div>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)' }}>
+                Your plan has been upgraded. All {upgradedPlan} features are now unlocked.
+              </div>
+            </div>
+            <button onClick={() => setShowUpgradeSuccess(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '28px', height: '28px', color: 'white', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>✕</button>
           </div>
         )}
 
