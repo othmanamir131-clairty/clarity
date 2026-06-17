@@ -133,7 +133,40 @@ export default function Landing() {
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        body{font-family:'Plus Jakarta Sans',sans-serif;background:#040410;color:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+        /* ── DESIGN TOKENS (primitive → semantic) ── */
+        :root{
+          --c-bg:#040410;
+          --c-violet:#7c3aed; --c-violet-light:#a78bfa; --c-violet-pale:#c4b5fd;
+          --c-teal:#0d9488; --c-emerald:#34d399; --c-emerald-deep:#059669;
+          --c-pink:#ec4899; --c-pink-light:#f472b6;
+          --c-amber:#f59e0b; --c-amber-light:#fbbf24;
+          --c-blue:#3b82f6; --c-blue-light:#60a5fa;
+          --c-text:#ffffff;
+          --c-text-muted:rgba(255,255,255,0.62);
+          --c-text-faint:rgba(255,255,255,0.42);
+          --c-border:rgba(255,255,255,0.08);
+          --c-border-strong:rgba(255,255,255,0.16);
+          --c-surface:rgba(255,255,255,0.03);
+          --c-focus-ring:#a78bfa;
+          --r-pill:100px; --r-card:28px; --r-sm:14px;
+          --sp-1:4px; --sp-2:8px; --sp-3:16px; --sp-4:24px; --sp-5:40px;
+          --dur-fast:150ms; --dur-base:250ms; --dur-slow:400ms;
+          --ease-out:cubic-bezier(0.16,1,0.3,1);
+        }
+
+        body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--c-bg);color:var(--c-text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+        /* ── ACCESSIBILITY: focus-visible rings on all interactive elements ── */
+        a:focus-visible,button:focus-visible,[role="button"]:focus-visible,input:focus-visible{
+          outline:2px solid var(--c-focus-ring);
+          outline-offset:3px;
+          border-radius:8px;
+        }
+        .btn-primary:focus-visible,.btn-outline:focus-visible,.nstart:focus-visible,.np:focus-visible,.pbtn:focus-visible,.nlogin:focus-visible,.tog:focus-visible{
+          border-radius:var(--r-pill);
+        }
+        button{font-family:inherit}
 
         /* ── KEYFRAMES ── */
         @keyframes f1{0%,100%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(50px,-35px) rotate(6deg)}50%{transform:translate(-25px,55px) rotate(-4deg)}75%{transform:translate(-55px,-25px) rotate(5deg)}}
@@ -276,13 +309,14 @@ export default function Landing() {
         .nlogo{font-size:22px;font-weight:800;letter-spacing:-0.5px;display:flex;align-items:center;gap:10px}
         .nlogo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#0d9488);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;box-shadow:0 4px 16px rgba(124,58,237,0.5),0 0 30px rgba(124,58,237,0.2)}
         .npills{display:flex;gap:2px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:4px;backdrop-filter:blur(16px)}
-        .np{background:none;border:none;padding:8px 20px;font-size:13px;color:rgba(255,255,255,0.4);font-weight:600;cursor:pointer;border-radius:100px;font-family:inherit;transition:all 0.2s;letter-spacing:0.01em}
+        .np{background:none;border:none;padding:8px 20px;font-size:13px;color:rgba(255,255,255,0.65);font-weight:600;cursor:pointer;border-radius:100px;font-family:inherit;transition:all 0.2s;letter-spacing:0.01em}
         .np:hover{background:rgba(255,255,255,0.1);color:white}
         .nr{display:flex;gap:10px;align-items:center}
-        .nlogin{background:none;border:none;font-size:14px;color:rgba(255,255,255,0.35);font-weight:600;cursor:pointer;font-family:inherit;transition:color 0.2s;padding:8px 12px}
+        .nlogin{background:none;border:none;font-size:14px;color:rgba(255,255,255,0.62);font-weight:600;cursor:pointer;font-family:inherit;transition:color 0.2s;padding:8px 12px}
         .nlogin:hover{color:white}
         .nstart{background:white;color:#040410;border:none;border-radius:100px;padding:10px 22px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all 0.25s;letter-spacing:-0.2px}
         .nstart:hover{background:linear-gradient(135deg,#a78bfa,#34d399);color:white;transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,58,237,0.5)}
+        .nstart:active{transform:scale(0.96);transition-duration:var(--dur-fast)}
 
         /* ── HERO (TWO COLUMN) ── */
         .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;padding:10rem 5rem 7rem;position:relative;z-index:2;max-width:1400px;margin:0 auto}
@@ -300,16 +334,18 @@ export default function Landing() {
         .hero-h .w3{animation-delay:0.22s}
         .hero-h .w4{animation-delay:0.29s}
         .hgrad{background:linear-gradient(130deg,#c4b5fd 0%,#7c3aed 30%,#2dd4bf 65%,#34d399 100%);background-size:200% 200%;animation:shimmer 5s ease infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .hero-sub{font-size:17px;color:rgba(255,255,255,0.4);line-height:1.85;max-width:460px;margin-bottom:2.75rem;animation:fadeUp 0.8s ease 0.35s both}
+        .hero-sub{font-size:17px;color:rgba(255,255,255,0.65);line-height:1.85;max-width:460px;margin-bottom:2.75rem;animation:fadeUp 0.8s ease 0.35s both}
         .hero-sub strong{color:rgba(255,255,255,0.9)}
 
         .hero-btns{display:flex;gap:12px;flex-wrap:wrap;animation:fadeUp 0.8s ease 0.45s both;margin-bottom:2rem}
         .btn-primary{background:linear-gradient(135deg,#7c3aed,#0d9488);color:white;border:none;border-radius:100px;padding:18px 40px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;transition:all 0.3s;box-shadow:0 8px 32px rgba(124,58,237,0.5),0 0 0 1px rgba(167,139,250,0.2);letter-spacing:-0.2px}
         .btn-primary:hover{transform:translateY(-3px);box-shadow:0 20px 50px rgba(124,58,237,0.6),0 0 0 1px rgba(167,139,250,0.35)}
+        .btn-primary:active{transform:translateY(-1px) scale(0.97);transition-duration:var(--dur-fast)}
         .btn-outline{background:rgba(255,255,255,0.05);color:white;border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:17px 32px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;backdrop-filter:blur(16px);transition:all 0.3s}
         .btn-outline:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);transform:translateY(-2px)}
+        .btn-outline:active{transform:scale(0.97);transition-duration:var(--dur-fast)}
 
-        .hero-free{font-size:12px;color:rgba(255,255,255,0.18);letter-spacing:0.06em;text-transform:uppercase;animation:fadeUp 0.8s ease 0.5s both;margin-bottom:3rem}
+        .hero-free{font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:0.06em;text-transform:uppercase;animation:fadeUp 0.8s ease 0.5s both;margin-bottom:3rem}
         .hero-proof{display:flex;align-items:center;gap:14px;animation:fadeUp 0.8s ease 0.55s both}
         .avrow{display:flex}
         .av{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);margin-left:-10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white}
@@ -367,14 +403,14 @@ export default function Landing() {
         /* ── MARQUEE ── */
         .mq-wrap{position:relative;z-index:2;overflow:hidden;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);padding:1.1rem 0;mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent)}
         .mq-track{display:flex;gap:0;width:max-content;animation:marquee 28s linear infinite}
-        .mq-item{display:flex;align-items:center;gap:10px;padding:0 2.5rem;font-size:12px;font-weight:700;color:rgba(255,255,255,0.25);white-space:nowrap;letter-spacing:0.06em;text-transform:uppercase}
+        .mq-item{display:flex;align-items:center;gap:10px;padding:0 2.5rem;font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);white-space:nowrap;letter-spacing:0.06em;text-transform:uppercase}
 
         /* ── SECTIONS ── */
         .sec{padding:8rem 5rem;position:relative;z-index:2}
         .w{max-width:1160px;margin:0 auto}
         .w-sm{max-width:840px;margin:0 auto}
         .w-xs{max-width:660px;margin:0 auto}
-        .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:1.25rem}
+        .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:1.25rem}
         .eyebrow::before{content:'';display:block;width:22px;height:1px;background:rgba(255,255,255,0.2)}
         .sh{font-size:clamp(36px,4.5vw,58px);font-weight:800;letter-spacing:-2.5px;line-height:1.04;color:white}
         .grad{background:linear-gradient(130deg,#c4b5fd 0%,#7c3aed 40%,#34d399 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -417,15 +453,15 @@ export default function Landing() {
         .cmp-tbl{width:100%;border-collapse:collapse}
         .cmp-tbl thead{background:linear-gradient(135deg,rgba(124,58,237,0.25),rgba(13,148,136,0.18))}
         .cmp-tbl thead th{padding:1.25rem 1.75rem;font-size:14px;font-weight:700;color:white;text-align:center}
-        .cmp-tbl thead th:first-child{text-align:left;font-size:11px;font-weight:600;color:rgba(255,255,255,0.3);letter-spacing:0.08em;text-transform:uppercase}
+        .cmp-tbl thead th:first-child{text-align:left;font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);letter-spacing:0.08em;text-transform:uppercase}
         .cmp-tbl tbody tr{border-bottom:1px solid rgba(255,255,255,0.04)}
         .cmp-tbl tbody tr:last-child{border-bottom:none}
         .cmp-tbl tbody tr:nth-child(even){background:rgba(255,255,255,0.015)}
-        .cmp-tbl tbody td{padding:1.1rem 1.75rem;font-size:14px;color:rgba(255,255,255,0.45);text-align:center}
+        .cmp-tbl tbody td{padding:1.1rem 1.75rem;font-size:14px;color:rgba(255,255,255,0.62);text-align:center}
         .cmp-tbl tbody td:first-child{text-align:left;color:rgba(255,255,255,0.8);font-weight:600}
         .cmp-hl{background:rgba(124,58,237,0.07) !important}
         .cy{color:#34d399;font-size:17px;font-weight:800}
-        .cn{color:rgba(255,255,255,0.12);font-size:17px}
+        .cn{color:rgba(255,255,255,0.38);font-size:17px}
         .cp{color:#fbbf24;font-size:12px;font-weight:700}
 
         /* ── STATS ── */
@@ -434,11 +470,11 @@ export default function Landing() {
         .stats-s{font-size:16px;color:rgba(255,255,255,0.3);margin-bottom:5rem;line-height:1.75}
         .stats-row{display:flex;justify-content:center;gap:6rem;flex-wrap:wrap}
         .stat-n{font-size:clamp(44px,6vw,72px);font-weight:800;letter-spacing:-3px;line-height:1}
-        .stat-l{font-size:12px;color:rgba(255,255,255,0.28);margin-top:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase}
+        .stat-l{font-size:12px;color:rgba(255,255,255,0.58);margin-top:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase}
 
         /* ── PRICING ── */
         .tog-row{display:flex;align-items:center;gap:14px;margin-bottom:4rem}
-        .tog-lbl{font-size:14px;font-weight:600;color:rgba(255,255,255,0.28)}
+        .tog-lbl{font-size:14px;font-weight:600;color:rgba(255,255,255,0.55)}
         .tog-lbl.on{color:white}
         .tog{width:52px;height:28px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:100px;position:relative;cursor:pointer;padding:0;transition:all 0.3s}
         .tog.on{background:linear-gradient(135deg,#7c3aed,#0d9488);border-color:transparent;box-shadow:0 0 20px rgba(124,58,237,0.4)}
@@ -452,7 +488,7 @@ export default function Landing() {
         .price-c.ft{background:linear-gradient(155deg,rgba(124,58,237,0.22),rgba(13,148,136,0.14)) !important;border-color:rgba(167,139,250,0.35) !important;box-shadow:0 0 0 1px rgba(167,139,250,0.18),0 40px 100px rgba(124,58,237,0.3) !important}
         .price-c.ft:hover{box-shadow:0 0 0 1px rgba(167,139,250,0.3),0 60px 120px rgba(124,58,237,0.4) !important}
         .price-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7c3aed,#0d9488);color:white;font-size:10px;font-weight:800;padding:6px 20px;border-radius:0 0 14px 14px;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;box-shadow:0 4px 16px rgba(124,58,237,0.4)}
-        .price-tier{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:12px;margin-top:0.75rem}
+        .price-tier{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.58);margin-bottom:12px;margin-top:0.75rem}
         .price-amt{font-size:clamp(44px,5vw,62px);font-weight:800;letter-spacing:-3px;line-height:1;color:white;margin-bottom:4px}
         .price-per{font-size:16px;font-weight:500;color:rgba(255,255,255,0.3)}
         .price-desc{font-size:14px;color:rgba(255,255,255,0.32);margin-bottom:2.25rem;margin-top:5px}
@@ -460,6 +496,7 @@ export default function Landing() {
         .price-feats li{font-size:14px;font-weight:500;color:rgba(255,255,255,0.7);display:flex;align-items:flex-start;gap:10px;line-height:1.5}
         .pck{color:#34d399;font-weight:800;flex-shrink:0;margin-top:1px}
         .pbtn{width:100%;border-radius:100px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:all 0.25s}
+        .pbtn:active{transform:scale(0.97);transition-duration:var(--dur-fast)}
         .pbtn:hover{transform:translateY(-2px)}
         .pbtn-g{background:linear-gradient(135deg,#7c3aed,#0d9488);color:white;box-shadow:0 8px 28px rgba(124,58,237,0.45)}
         .pbtn-g:hover{box-shadow:0 14px 40px rgba(124,58,237,0.6)}
@@ -472,7 +509,7 @@ export default function Landing() {
         .faq-item.open{border-color:rgba(124,58,237,0.4) !important;box-shadow:0 0 0 1px rgba(124,58,237,0.15),0 10px 40px rgba(124,58,237,0.1)}
         .faq-btn{width:100%;background:none;border:none;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 1.75rem;text-align:left;cursor:pointer;font-family:inherit}
         .faq-q{font-size:15px;font-weight:700;color:white;flex:1;padding-right:1rem;line-height:1.5}
-        .faq-icon{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:16px;color:rgba(255,255,255,0.4);flex-shrink:0;transition:all 0.3s}
+        .faq-icon{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:16px;color:rgba(255,255,255,0.62);flex-shrink:0;transition:all var(--dur-base)}
         .faq-item.open .faq-icon{transform:rotate(180deg);background:rgba(124,58,237,0.3);color:#c4b5fd}
         .faq-ans{padding:0 1.75rem 1.5rem;font-size:14px;color:rgba(255,255,255,0.42);line-height:1.88}
 
@@ -483,7 +520,8 @@ export default function Landing() {
         .cta-p{font-size:18px;color:rgba(255,255,255,0.32);line-height:1.8;margin-bottom:3rem;max-width:480px;margin-left:auto;margin-right:auto}
         .btn-cta{background:linear-gradient(135deg,#7c3aed,#0d9488);color:white;border:none;border-radius:100px;padding:22px 56px;font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;transition:all 0.3s;box-shadow:0 12px 40px rgba(124,58,237,0.5),0 0 0 1px rgba(167,139,250,0.2);letter-spacing:-0.3px}
         .btn-cta:hover{transform:translateY(-3px);box-shadow:0 24px 60px rgba(124,58,237,0.65),0 0 0 1px rgba(167,139,250,0.35)}
-        .cta-note{margin-top:1.75rem;font-size:12px;color:rgba(255,255,255,0.18);letter-spacing:0.05em;text-transform:uppercase}
+        .btn-cta:active{transform:translateY(-1px) scale(0.97);transition-duration:var(--dur-fast)}
+        .cta-note{margin-top:1.75rem;font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:0.05em;text-transform:uppercase}
 
         /* ── FOOTER ── */
         .footer{position:relative;z-index:2;border-top:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.35);backdrop-filter:blur(20px);padding:2rem 5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
@@ -551,13 +589,13 @@ export default function Landing() {
             <span>Clarity</span>
           </div>
           <div className="npills">
-            <button className="np" onClick={() => scrollToSection('how-it-works')}>How it works</button>
-            <button className="np" onClick={() => scrollToSection('pricing')}>Pricing</button>
-            <button className="np" onClick={() => scrollToSection('faq')}>FAQ</button>
+            <button type="button" className="np" onClick={() => scrollToSection('how-it-works')}>How it works</button>
+            <button type="button" className="np" onClick={() => scrollToSection('pricing')}>Pricing</button>
+            <button type="button" className="np" onClick={() => scrollToSection('faq')}>FAQ</button>
           </div>
           <div className="nr">
-            <button className="nlogin" onClick={() => router.push('/login')}>Log in</button>
-            <button className="nstart" onClick={() => router.push('/login')}>Start free →</button>
+            <button type="button" className="nlogin" onClick={() => router.push('/login')}>Log in</button>
+            <button type="button" className="nstart" onClick={() => router.push('/login')}>Start free →</button>
           </div>
         </nav>
 
@@ -573,7 +611,7 @@ export default function Landing() {
             <h1 className="hero-h">
               <span className="w w1">Your brain</span><br />
               <span className="w w2">thinks in</span>&nbsp;<span className="w w3 hgrad">chaos.</span><br />
-              <span className="w w4" style={{ color: 'rgba(255,255,255,0.22)', fontSize: '0.88em' }}>We fix that.</span>
+              <span className="w w4" style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.88em' }}>We fix that.</span>
             </h1>
 
             <p className="hero-sub">
@@ -581,8 +619,8 @@ export default function Landing() {
             </p>
 
             <div className="hero-btns">
-              <button className="btn-primary" onClick={() => router.push('/login')}>Organize my ideas free →</button>
-              <button className="btn-outline" onClick={() => scrollToSection('how-it-works')}>See how it works</button>
+              <button type="button" className="btn-primary" onClick={() => router.push('/login')}>Organize my ideas free →</button>
+              <button type="button" className="btn-outline" onClick={() => scrollToSection('how-it-works')}>See how it works</button>
             </div>
 
             <p className="hero-free">Free forever · No credit card · Ready in 30 seconds</p>
@@ -802,10 +840,10 @@ export default function Landing() {
           <div className="w">
             <p className="eyebrow">Pricing</p>
             <h2 className="sh">Start free. <span className="grad">Upgrade when ready.</span></h2>
-            <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.28)', marginBottom: '2.5rem' }}>No hidden fees. No contracts. Cancel anytime.</p>
+            <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.58)', marginBottom: '2.5rem' }}>No hidden fees. No contracts. Cancel anytime.</p>
             <div className="tog-row">
               <span className={`tog-lbl ${!annual ? 'on' : ''}`}>Monthly</span>
-              <button className={`tog ${annual ? 'on' : ''}`} onClick={() => setAnnual(a => !a)} aria-pressed={annual}>
+              <button type="button" className={`tog ${annual ? 'on' : ''}`} onClick={() => setAnnual(a => !a)} aria-pressed={annual}>
                 <span className="tog-k" />
               </button>
               <span className={`tog-lbl ${annual ? 'on' : ''}`}>Annual</span>
@@ -825,7 +863,7 @@ export default function Landing() {
                   <ul className="price-feats">
                     {p.feats.map(f => <li key={f}><span className="pck">✓</span>{f}</li>)}
                   </ul>
-                  <button className={`pbtn ${p.ft ? 'pbtn-g' : 'pbtn-o'}`} onClick={() => router.push('/login')}>{p.btn}</button>
+                  <button type="button" className={`pbtn ${p.ft ? 'pbtn-g' : 'pbtn-o'}`} onClick={() => router.push('/login')}>{p.btn}</button>
                 </div>
               ))}
             </div>
@@ -842,7 +880,7 @@ export default function Landing() {
             <div className="faq-list">
               {faqs.map((f, i) => (
                 <div key={i} className={`faq-item gc ${activeFaq === i ? 'open' : ''}`}>
-                  <button className="faq-btn" onClick={() => setActiveFaq(activeFaq === i ? null : i)} aria-expanded={activeFaq === i}>
+                  <button type="button" className="faq-btn" onClick={() => setActiveFaq(activeFaq === i ? null : i)} aria-expanded={activeFaq === i}>
                     <span className="faq-q">{f.q}</span>
                     <span className="faq-icon">▾</span>
                   </button>
@@ -862,7 +900,7 @@ export default function Landing() {
               Your best ideas deserve more than <span className="grad">a voice memo.</span>
             </h2>
             <p className="cta-p">Join 2,400+ creators who turned scattered thoughts into real action. Free to start. No credit card. No excuses.</p>
-            <button className="btn-cta" onClick={() => router.push('/login')}>Organize my ideas free →</button>
+            <button type="button" className="btn-cta" onClick={() => router.push('/login')}>Organize my ideas free →</button>
             <p className="cta-note">Free forever plan · No credit card · Cancel paid plans anytime</p>
           </div>
         </section>
@@ -872,9 +910,9 @@ export default function Landing() {
           <div className="flogo"><span className="grad">✦ Clarity</span></div>
           <div className="fcopy">© 2026 Clarity. All rights reserved.</div>
           <nav className="flinks">
-            <button className="fl" onClick={() => router.push('/privacy')}>Privacy</button>
-            <button className="fl" onClick={() => router.push('/terms')}>Terms</button>
-            <button className="fl" onClick={() => router.push('/contact')}>Contact</button>
+            <button type="button" className="fl" onClick={() => router.push('/privacy')}>Privacy</button>
+            <button type="button" className="fl" onClick={() => router.push('/terms')}>Terms</button>
+            <button type="button" className="fl" onClick={() => router.push('/contact')}>Contact</button>
           </nav>
         </footer>
 
