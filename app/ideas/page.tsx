@@ -154,7 +154,10 @@ export default function Ideas() {
               ) : filtered.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem' }}>
                   <div style={{ fontSize: '32px', marginBottom: '8px' }}>🌱</div>
-                  <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>No ideas yet — start chatting on the dashboard!</div>
+                  <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>No ideas yet</div>
+                  <button onClick={() => window.location.href = '/'} style={{ background: 'linear-gradient(135deg, #7c3aed, #0d9488)', border: 'none', borderRadius: '100px', color: 'white', fontSize: '13px', fontWeight: '700', padding: '9px 20px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    Start a brain dump →
+                  </button>
                 </div>
               ) : filtered.map((idea, index) => (
                 <div
@@ -162,10 +165,15 @@ export default function Ideas() {
                   className={`idea-item ${selectedIdea?.content === idea.content ? 'selected' : ''}`}
                   onClick={() => selectIdea(idea)}
                 >
-                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: '1.5', marginBottom: '6px', fontWeight: '500' }}>{idea.content}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '10px', color: '#a78bfa', background: 'rgba(167,139,250,0.15)', padding: '2px 10px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(167,139,250,0.25)' }}>{idea.tag}</span>
-                    {idea.created_at && <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}>{new Date(idea.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: '1.5', marginBottom: '8px', fontWeight: '500' }}>{idea.content}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '10px', color: '#a78bfa', background: 'rgba(167,139,250,0.15)', padding: '2px 10px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(167,139,250,0.25)' }}>{idea.tag}</span>
+                      {idea.created_at && <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}>{new Date(idea.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                    </div>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: selectedIdea?.content === idea.content ? '#a78bfa' : 'rgba(255,255,255,0.3)', transition: 'color 0.15s' }}>
+                      Deep dive →
+                    </span>
                   </div>
                 </div>
               ))}

@@ -1,24 +1,46 @@
-const store = new Map<string, { count: number; resetAt: number }>()
+/**
+ * In-memory sliding-window rate limiter.
+ * On Vercel, warm instances reuse this Map — cold starts reset it, which is fine.
+ * Limits: 20 requests/minute per user (protects against burst abuse).
+ */
+
+interface Window {
+  count: number
+  resetAt: number
+}
+
+const windows = new Map<string, Window>()
+
+const WINDOW_MS = 60_000          // 1 minute
+const DEFAULT_MAX = 20            // requests per window
+
+/** Clean up expired entries every 5 minutes to avoid memory growth */
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, w] of windows.entries()) {
+    if (now > w.resetAt) windows.delete(key)
+  }
+}, 5 * 60_000)
 
 export function checkRateLimit(
-  key: string,
-  maxPerMinute: number,
-): { allowed: boolean; retryAfterSeconds: number } {
+  userId: string,
+  maxPerMinute = DEFAULT_MAX
+): { allowed: boolean; retryAfterSeconds?: number } {
   const now = Date.now()
-  const entry = store.get(key)
+  const existing = windows.get(userId)
 
-  if (!entry || now >= entry.resetAt) {
-    store.set(key, { count: 1, resetAt: now + 60_000 })
-    return { allowed: true, retryAfterSeconds: 0 }
+  if (!existing || now > existing.resetAt) {
+    windows.set(userId, { count: 1, resetAt: now + WINDOW_MS })
+    return { allowed: true }
   }
 
-  if (entry.count >= maxPerMinute) {
+  if (existing.count >= maxPerMinute) {
     return {
       allowed: false,
-      retryAfterSeconds: Math.ceil((entry.resetAt - now) / 1000),
+      retryAfterSeconds: Math.ceil((existing.resetAt - now) / 1000),
     }
   }
 
-  entry.count++
-  return { allowed: true, retryAfterSeconds: 0 }
+  existing.count++
+  return { allowed: true }
 }

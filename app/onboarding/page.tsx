@@ -4,6 +4,7 @@
 // ALTER TABLE profiles
 //   ADD COLUMN IF NOT EXISTS display_name text,
 //   ADD COLUMN IF NOT EXISTS creator_type text,
+//   ADD COLUMN IF NOT EXISTS goal text,
 //   ADD COLUMN IF NOT EXISTS onboarded boolean DEFAULT false;
 
 import { useState, useEffect } from 'react'
@@ -19,10 +20,20 @@ const CREATOR_TYPES = [
   { id: 'other',     label: 'Other',      emoji: '✦',  desc: 'Something unique' },
 ]
 
+const GOALS = [
+  { id: 'grow_audience', label: 'Grow my audience',     emoji: '📈', desc: 'More followers & reach' },
+  { id: 'create_more',   label: 'Create more content',  emoji: '🎬', desc: 'Stay consistent' },
+  { id: 'stay_organized',label: 'Stay organized',       emoji: '🗂️', desc: 'Clear brain, clear plan' },
+  { id: 'plan_schedule', label: 'Plan my schedule',     emoji: '📅', desc: 'Map out my week' },
+  { id: 'build_brand',   label: 'Build my brand',       emoji: '✨', desc: 'Distinct identity' },
+  { id: 'find_niche',    label: 'Figure out my niche',  emoji: '🎯', desc: 'Find my focus' },
+]
+
 export default function Onboarding() {
   const [step, setStep]               = useState(1)
   const [name, setName]               = useState('')
   const [creatorType, setCreatorType] = useState('')
+  const [goal, setGoal]               = useState('')
   const [saving, setSaving]           = useState(false)
   const [saveError, setSaveError]     = useState('')
   const [user, setUser]               = useState<any>(null)
@@ -50,8 +61,15 @@ export default function Onboarding() {
     })
   }, [])
 
-  const saveAndComplete = async () => {
-    if (!user || !creatorType) return
+  // Step 2 → Step 3: just advance, don't save yet
+  const proceedToGoals = () => {
+    if (!creatorType) return
+    setStep(3)
+  }
+
+  // Step 3 → Step 4: save everything including goal
+  const completeWithGoal = async () => {
+    if (!user) return
     setSaving(true)
     setSaveError('')
 
@@ -60,6 +78,7 @@ export default function Onboarding() {
       email: user.email,
       displayName: name,
       creatorType,
+      goal,
     })
 
     setSaving(false)
@@ -69,7 +88,7 @@ export default function Onboarding() {
       return
     }
 
-    setStep(3)
+    setStep(4)
   }
 
   const displayName = name.trim() || user?.email?.split('@')[0] || 'there'
@@ -214,17 +233,18 @@ export default function Onboarding() {
         <div className="ob-card">
 
           {/* Progress dots */}
-          {step < 3 && (
+          {step < 4 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', marginBottom: '2rem' }}>
-              <div className={`progress-dot ${step >= 1 ? 'active' : ''} ${step > 1 ? 'done' : ''}`} />
-              <div className={`progress-dot ${step >= 2 ? 'active' : ''}`} />
+              <div className={`progress-dot ${step >= 1 ? (step > 1 ? 'done' : 'active') : ''}`} />
+              <div className={`progress-dot ${step >= 2 ? (step > 2 ? 'done' : 'active') : ''}`} />
+              <div className={`progress-dot ${step >= 3 ? 'active' : ''}`} />
             </div>
           )}
 
           {/* ── STEP 1: Name ── */}
           {step === 1 && (
             <div style={{ animation: 'fadeUp 0.4s ease' }}>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Step 1 of 2</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Step 1 of 3</div>
               <h1 style={{ fontSize: '30px', fontWeight: '800', color: 'white', letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '10px' }}>
                 Welcome to Clarity! 👋
               </h1>
@@ -258,7 +278,7 @@ export default function Onboarding() {
           {/* ── STEP 2: Creator type ── */}
           {step === 2 && (
             <div style={{ animation: 'fadeUp 0.4s ease' }}>
-              <div style={{ fontSize: '13px', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Step 2 of 2</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Step 2 of 3</div>
               <h1 style={{ fontSize: '26px', fontWeight: '800', color: 'white', letterSpacing: '-0.75px', lineHeight: 1.2, marginBottom: '8px' }}>
                 What kind of creator are you?
               </h1>
@@ -280,14 +300,8 @@ export default function Onboarding() {
                 ))}
               </div>
 
-              {saveError && (
-                <div style={{ fontSize: '13px', color: '#fca5a5', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', padding: '10px 14px', marginBottom: '12px', lineHeight: 1.5 }}>
-                  {saveError}
-                </div>
-              )}
-
-              <button className="ob-btn" onClick={saveAndComplete} disabled={!creatorType || saving}>
-                {saving ? 'Setting up...' : 'Launch my workspace →'}
+              <button className="ob-btn" onClick={proceedToGoals} disabled={!creatorType}>
+                Next →
               </button>
 
               <div style={{ textAlign: 'center', marginTop: '14px' }}>
@@ -300,8 +314,67 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* ── STEP 3: Done ── */}
+          {/* ── STEP 3: Goal ── */}
           {step === 3 && (
+            <div style={{ animation: 'fadeUp 0.4s ease' }}>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Step 3 of 3</div>
+              <h1 style={{ fontSize: '26px', fontWeight: '800', color: 'white', letterSpacing: '-0.75px', lineHeight: 1.2, marginBottom: '8px' }}>
+                What's your #1 goal right now?
+              </h1>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', marginBottom: '1.75rem', lineHeight: 1.6 }}>
+                Clarity will prioritize suggestions around what matters most to you.
+              </p>
+
+              <div className="creator-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '1.75rem' }}>
+                {GOALS.map(g => (
+                  <div
+                    key={g.id}
+                    className={`creator-card ${goal === g.id ? 'selected' : ''}`}
+                    onClick={() => setGoal(g.id)}
+                  >
+                    <div style={{ fontSize: '28px', marginBottom: '8px', lineHeight: 1 }}>{g.emoji}</div>
+                    <div style={{ fontSize: '12px', fontWeight: '700', color: goal === g.id ? '#c4b5fd' : 'rgba(255,255,255,0.85)', marginBottom: '3px', lineHeight: 1.3 }}>{g.label}</div>
+                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>{g.desc}</div>
+                  </div>
+                ))}
+              </div>
+
+              {saveError && (
+                <div style={{ fontSize: '13px', color: '#fca5a5', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', padding: '10px 14px', marginBottom: '12px', lineHeight: 1.5 }}>
+                  {saveError}
+                </div>
+              )}
+
+              <button className="ob-btn" onClick={completeWithGoal} disabled={saving}>
+                {saving ? 'Setting up...' : 'Launch my workspace →'}
+              </button>
+
+              <button className="ob-btn-ghost" style={{ marginTop: '10px' }} onClick={async () => {
+                setGoal('')
+                // Save with empty goal
+                if (!user) return
+                setSaving(true)
+                setSaveError('')
+                const result = await completeOnboarding({ userId: user.id, email: user.email, displayName: name, creatorType, goal: '' })
+                setSaving(false)
+                if (!result.ok) { setSaveError(result.error || 'Could not save. Please try again.'); return }
+                setStep(4)
+              }} disabled={saving}>
+                Skip — I'll decide later
+              </button>
+
+              <div style={{ textAlign: 'center', marginTop: '14px' }}>
+                <span onClick={() => setStep(2)} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', fontWeight: '600', transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
+                  ← Back
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 4: Done ── */}
+          {step === 4 && (
             <div style={{ textAlign: 'center', animation: 'popIn 0.5s ease' }}>
               <div className="success-ring">✦</div>
               <h1 style={{ fontSize: '28px', fontWeight: '800', color: 'white', letterSpacing: '-0.75px', lineHeight: 1.15, marginBottom: '12px' }}>
@@ -326,7 +399,7 @@ export default function Onboarding() {
           )}
         </div>
 
-        {step < 3 && (
+        {step < 4 && (
           <p style={{ marginTop: '1.5rem', fontSize: '12px', color: 'rgba(255,255,255,0.2)', fontWeight: '500' }}>
             Takes 30 seconds · No credit card required
           </p>

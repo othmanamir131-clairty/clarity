@@ -18,22 +18,23 @@ export default function VideoAnalysis() {
     setError('')
     setResult(null)
 
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: `You are a content strategy expert. A user wants to analyze a YouTube video. Based on the URL provided, make educated guesses about the content and provide a detailed strategy. The URL is: ${url}
-
-Return ONLY a raw JSON object, no markdown, no backticks, no explanation. Just this exact JSON structure: {"title":"Guessed video topic","score":82,"hooks":["Hook 1","Hook 2","Hook 3","Hook 4","Hook 5"],"contentIdeas":["Idea 1","Idea 2","Idea 3","Idea 4","Idea 5","Idea 6"],"hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5","#tag6","#tag7","#tag8","#tag9","#tag10"],"strategy":"2-3 sentence strategy here","postingTips":["Tip 1","Tip 2","Tip 3"],"niche":"Fitness/Tech/etc","format":"Short form/Long form/Tutorial"}`
-      }),
-    })
-    const data = await res.json()
     try {
-      const clean = data.reply.replace(/```json|```/g, '').trim()
-      const parsed = JSON.parse(clean)
-      setResult(parsed)
+      const res = await fetch('/api/video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      })
+      const data = await res.json()
+
+      if (!res.ok || data.error) {
+        setError(data.message || 'Could not analyze this video. Make sure it\'s a valid YouTube URL.')
+        setLoading(false)
+        return
+      }
+
+      setResult(data)
     } catch {
-      setError('Could not analyze this video. Try a different URL.')
+      setError('Network error — check your connection and try again.')
     }
     setLoading(false)
   }
@@ -169,16 +170,30 @@ Return ONLY a raw JSON object, no markdown, no backticks, no explanation. Just t
 
               {/* Score + meta */}
               <div style={{ ...glass, padding: '1.75rem', display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap', boxShadow: `0 4px 24px ${scoreGlow}` }}>
-                <div style={{ width: '88px', height: '88px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: `3px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', flexShrink: 0, boxShadow: `0 0 24px ${scoreGlow}`, animation: 'float 3s ease-in-out infinite' }}>
-                  <div style={{ fontSize: '26px', fontWeight: '800', color: scoreColor }}>{result.score}</div>
-                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>/ 100</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '10px' }}>{result.title}</div>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {/* Thumbnail */}
+                {result.videoId && (
+                  <div style={{ flexShrink: 0, borderRadius: '12px', overflow: 'hidden', width: '140px', height: '79px', position: 'relative' }}>
+                    <img
+                      src={`https://img.youtube.com/vi/${result.videoId}/mqdefault.jpg`}
+                      alt="Video thumbnail"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>▶</div>
+                    </div>
+                  </div>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '16px', fontWeight: '800', color: 'white', marginBottom: '10px', lineHeight: 1.3 }}>{result.title}</div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
                     <span style={{ background: 'rgba(52,211,153,0.15)', color: '#6ee7b7', border: '1px solid rgba(52,211,153,0.25)', padding: '4px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: '600' }}>📌 {result.niche}</span>
                     <span style={{ background: 'rgba(167,139,250,0.15)', color: '#c4b5fd', border: '1px solid rgba(167,139,250,0.25)', padding: '4px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: '600' }}>🎥 {result.format}</span>
                   </div>
+                </div>
+                {/* Score ring */}
+                <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: `3px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', flexShrink: 0, boxShadow: `0 0 24px ${scoreGlow}` }}>
+                  <div style={{ fontSize: '22px', fontWeight: '800', color: scoreColor }}>{result.score}</div>
+                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>/ 100</div>
                 </div>
               </div>
 

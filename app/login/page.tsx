@@ -161,12 +161,27 @@ export default function Login() {
 
       <div style={{ position: 'relative', minHeight: '100vh', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
         <div className="login-card">
+          {/* Social proof bar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '1.5rem', background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '100px', padding: '6px 16px' }}>
+            <div style={{ display: 'flex', marginRight: '2px' }}>
+              {['#a78bfa','#34d399','#fbbf24'].map((c, i) => (
+                <div key={i} style={{ width: '22px', height: '22px', borderRadius: '50%', background: c, border: '2px solid rgba(255,255,255,0.2)', marginLeft: i > 0 ? '-8px' : 0, fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {['🎬','✍️','🎙️'][i]}
+                </div>
+              ))}
+            </div>
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', fontWeight: '600' }}>2,400+ creators already inside</span>
+          </div>
+
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div style={{ fontSize: '28px', fontWeight: '800', color: 'white', letterSpacing: '-0.5px', marginBottom: '6px' }}>
               ✦ Clarity
             </div>
-            <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>
-              {isSignUp ? 'Create your account' : 'Welcome back'}
+            <div style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginBottom: '4px' }}>
+              {isSignUp ? 'Start organizing your ideas' : 'Welcome back'}
+            </div>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontWeight: '500' }}>
+              Dump your ideas. Get an instant action plan.
             </div>
           </div>
 

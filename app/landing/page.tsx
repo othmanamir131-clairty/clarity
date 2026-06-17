@@ -9,6 +9,7 @@ export default function Landing() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [annual, setAnnual] = useState(false)
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
+  const [motes, setMotes] = useState<{ left: number; size: number; color: string; duration: number; delay: number }[]>([])
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40)
@@ -23,10 +24,23 @@ export default function Landing() {
     }
   }, [])
 
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return
+    const colors = ['#a78bfa', '#5eead4', '#f9a8d4', '#93c5fd']
+    setMotes(Array.from({ length: 18 }, (_, i) => ({
+      left: Math.random() * 100,
+      size: Math.random() * 2.5 + 1.5,
+      color: colors[i % colors.length],
+      duration: Math.random() * 8 + 12,
+      delay: -(Math.random() * 14),
+    })))
+  }, [])
+
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
-  const orbX = (mousePos.x - 0.5) * 40
-  const orbY = (mousePos.y - 0.5) * 30
+  const nx = mousePos.x - 0.5
+  const ny = mousePos.y - 0.5
 
   const faqs = [
     { q: 'Is there really a free plan — no credit card needed?', a: 'Yes. The free plan is free forever. You get 5 AI messages per day, the full dashboard, and your ideas library. No credit card, no trial timer, no gotchas.' },
@@ -169,133 +183,57 @@ export default function Landing() {
         button{font-family:inherit}
 
         /* ── KEYFRAMES ── */
-        @keyframes f1{0%,100%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(50px,-35px) rotate(6deg)}50%{transform:translate(-25px,55px) rotate(-4deg)}75%{transform:translate(-55px,-25px) rotate(5deg)}}
-        @keyframes f2{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(-65px,45px) rotate(-7deg)}66%{transform:translate(55px,-35px) rotate(6deg)}}
-        @keyframes f3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(35px,65px) scale(1.06)}}
-        @keyframes f4{0%,100%{transform:translate(0,0)}40%{transform:translate(-45px,-55px)}80%{transform:translate(35px,35px)}}
-        @keyframes f5{0%,100%{transform:translate(0,0) rotate(0deg)}30%{transform:translate(55px,35px) rotate(9deg)}70%{transform:translate(-35px,-45px) rotate(-6deg)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         @keyframes shimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
         @keyframes pulse{0%{transform:scale(1);opacity:1}100%{transform:scale(2.2);opacity:0}}
         @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-        @keyframes glint{0%,88%,100%{opacity:0}94%{opacity:1}}
-        @keyframes breathe{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
         @keyframes heroOrb{0%,100%{transform:translate(0,0) scale(1) rotate(0deg)}20%{transform:translate(30px,-20px) scale(1.03) rotate(3deg)}40%{transform:translate(-15px,25px) scale(0.98) rotate(-2deg)}60%{transform:translate(20px,15px) scale(1.02) rotate(2deg)}80%{transform:translate(-25px,-10px) scale(1) rotate(-1deg)}}
         @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         @keyframes ringExpand{0%{transform:scale(0.8);opacity:0.6}100%{transform:scale(1.8);opacity:0}}
+        @keyframes gridDrift{from{background-position:0 0}to{background-position:0 48px}}
+        @keyframes horizonPulse{0%,100%{opacity:.35}50%{opacity:.8}}
+        @keyframes spotBreathe{0%,100%{opacity:.5}50%{opacity:.95}}
+        @keyframes spotFadeA{0%,100%{opacity:1}33%{opacity:.15}66%{opacity:.15}}
+        @keyframes spotFadeB{0%,100%{opacity:.15}33%{opacity:1}66%{opacity:.15}}
+        @keyframes spotFadeC{0%,100%{opacity:.15}33%{opacity:.15}66%{opacity:1}}
+        @keyframes moteRise{0%{transform:translateY(0) scale(.6);opacity:0}10%{opacity:.85}85%{opacity:.4}100%{transform:translateY(-100vh) scale(1.1);opacity:0}}
 
-        /* ── ORB BG ── */
-        .orb-stage{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-        .bg-glow{position:absolute;border-radius:50%;filter:blur(80px);animation:breathe 9s ease-in-out infinite}
-        .bg-g1{width:900px;height:900px;top:-300px;left:-200px;background:radial-gradient(circle,rgba(109,40,217,0.35),transparent 70%)}
-        .bg-g2{width:800px;height:800px;bottom:-200px;right:-200px;background:radial-gradient(circle,rgba(5,150,105,0.3),transparent 70%);animation-delay:4s}
-        .bg-g3{width:600px;height:600px;top:35%;left:35%;background:radial-gradient(circle,rgba(219,39,119,0.15),transparent 70%);animation-delay:7s}
-
-        .orb{position:absolute;border-radius:50%}
-        .orb::before{content:'';position:absolute;border-radius:50%}
-        .orb::after{content:'';position:absolute;border-radius:50%}
-
-        /* purple orb */
-        .o1{
-          width:560px;height:560px;top:-120px;left:-140px;
-          background:radial-gradient(circle at 30% 26%,
-            #fff 0%,rgba(255,255,255,0.7) 4%,
-            rgba(216,180,254,0.6) 12%,
-            rgba(139,92,246,0.7) 28%,
-            rgba(109,40,217,0.8) 48%,
-            rgba(30,10,60,0.9) 70%,
-            rgba(4,4,16,1) 100%
-          );
-          box-shadow:inset -35px -35px 70px rgba(0,0,0,0.7),inset 18px 18px 35px rgba(255,255,255,0.07),0 0 120px rgba(124,58,237,0.5),0 0 240px rgba(124,58,237,0.2);
-          animation:f1 22s ease-in-out infinite;
+        /* ── GRID + SPOTLIGHT BG ── */
+        .gbg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:var(--c-bg)}
+        .gbg-grid{position:absolute;inset:-60% -20% -20% -20%;
+          background-image:linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+          background-size:48px 48px;
+          transform:perspective(600px) rotateX(62deg);
+          transform-origin:top center;
+          -webkit-mask-image:linear-gradient(to bottom, transparent, black 35%, black 75%, transparent);
+          mask-image:linear-gradient(to bottom, transparent, black 35%, black 75%, transparent);
+          animation:gridDrift 16s linear infinite;
+          transition:transform .5s cubic-bezier(.16,1,.3,1);
         }
-        .o1::after{width:38%;height:22%;background:rgba(255,255,255,0.55);top:10%;left:16%;filter:blur(9px);transform:rotate(-28deg);animation:glint 7s ease-in-out infinite}
-        .o1::before{width:14%;height:14%;background:rgba(255,255,255,0.9);top:7%;left:22%;filter:blur(4px);box-shadow:0 0 15px rgba(255,255,255,0.6)}
-
-        /* teal orb */
-        .o2{
-          width:420px;height:420px;bottom:-80px;right:-100px;
-          background:radial-gradient(circle at 33% 28%,
-            #fff 0%,rgba(255,255,255,0.65) 5%,
-            rgba(110,231,183,0.55) 14%,
-            rgba(16,185,129,0.7) 32%,
-            rgba(5,150,105,0.8) 52%,
-            rgba(4,30,22,0.9) 72%,
-            rgba(4,4,16,1) 100%
-          );
-          box-shadow:inset -25px -25px 55px rgba(0,0,0,0.65),inset 14px 14px 28px rgba(255,255,255,0.07),0 0 100px rgba(16,185,129,0.5),0 0 200px rgba(16,185,129,0.18);
-          animation:f2 19s ease-in-out infinite;
+        .gbg-horizon{position:absolute;top:18%;left:8%;right:8%;height:2px;
+          background:linear-gradient(90deg,transparent,var(--c-violet-light),var(--c-teal),var(--c-pink-light),transparent);
+          filter:blur(1px);opacity:.5;animation:horizonPulse 9s ease-in-out infinite;
         }
-        .o2::after{width:34%;height:20%;background:rgba(255,255,255,0.5);top:11%;left:18%;filter:blur(8px);transform:rotate(-22deg);animation:glint 9s ease-in-out infinite 2s}
-        .o2::before{width:13%;height:13%;background:rgba(255,255,255,0.88);top:8%;left:23%;filter:blur(4px)}
-
-        /* pink orb */
-        .o3{
-          width:300px;height:300px;top:38%;right:5%;
-          background:radial-gradient(circle at 32% 27%,
-            #fff 0%,rgba(255,255,255,0.7) 5%,
-            rgba(249,168,212,0.55) 14%,
-            rgba(236,72,153,0.7) 32%,
-            rgba(190,24,93,0.8) 52%,
-            rgba(30,4,16,0.9) 72%,
-            rgba(4,4,16,1) 100%
-          );
-          box-shadow:inset -18px -18px 40px rgba(0,0,0,0.65),inset 10px 10px 22px rgba(255,255,255,0.07),0 0 70px rgba(236,72,153,0.5),0 0 140px rgba(236,72,153,0.2);
-          animation:f3 26s ease-in-out infinite;
+        .gbg-spot-wrap{position:absolute;width:55vw;height:50vh;left:50%;top:22%;
+          transform:translate(-50%,-50%);
+          transition:left .6s cubic-bezier(.16,1,.3,1), top .6s cubic-bezier(.16,1,.3,1);
         }
-        .o3::after{width:32%;height:18%;background:rgba(255,255,255,0.5);top:10%;left:18%;filter:blur(7px);transform:rotate(-25deg);animation:glint 11s ease-in-out infinite 4s}
-        .o3::before{width:12%;height:12%;background:rgba(255,255,255,0.85);top:7%;left:22%;filter:blur(3px)}
-
-        /* blue orb */
-        .o4{
-          width:200px;height:200px;top:20%;left:8%;
-          background:radial-gradient(circle at 34% 28%,
-            #fff 0%,rgba(255,255,255,0.65) 5%,
-            rgba(147,197,253,0.5) 14%,
-            rgba(59,130,246,0.7) 32%,
-            rgba(29,78,216,0.8) 52%,
-            rgba(4,10,30,0.9) 72%,
-            rgba(4,4,16,1) 100%
-          );
-          box-shadow:inset -12px -12px 28px rgba(0,0,0,0.6),inset 7px 7px 16px rgba(255,255,255,0.07),0 0 50px rgba(59,130,246,0.5),0 0 100px rgba(59,130,246,0.2);
-          animation:f4 21s ease-in-out infinite 2s;
+        .gbg-spot{position:absolute;inset:0;filter:blur(40px)}
+        .gbg-spot-a{background:radial-gradient(circle,rgba(167,139,250,.45),transparent 70%);
+          animation:spotBreathe 7s ease-in-out infinite, spotFadeA 21s ease-in-out infinite;
         }
-        .o4::after{width:30%;height:17%;background:rgba(255,255,255,0.5);top:11%;left:18%;filter:blur(6px);transform:rotate(-22deg);animation:glint 8s ease-in-out infinite 1s}
-        .o4::before{width:12%;height:12%;background:rgba(255,255,255,0.85);top:8%;left:23%;filter:blur(3px)}
-
-        /* amber orb */
-        .o5{
-          width:150px;height:150px;bottom:28%;left:28%;
-          background:radial-gradient(circle at 32% 27%,
-            #fff 0%,rgba(255,255,255,0.65) 5%,
-            rgba(253,230,138,0.55) 14%,
-            rgba(245,158,11,0.7) 32%,
-            rgba(180,83,9,0.8) 52%,
-            rgba(20,8,2,0.9) 72%,
-            rgba(4,4,16,1) 100%
-          );
-          box-shadow:inset -9px -9px 20px rgba(0,0,0,0.6),inset 5px 5px 12px rgba(255,255,255,0.07),0 0 40px rgba(245,158,11,0.5),0 0 80px rgba(245,158,11,0.2);
-          animation:f5 17s ease-in-out infinite 3s;
+        .gbg-spot-b{background:radial-gradient(circle,rgba(94,234,212,.4),transparent 70%);
+          animation:spotBreathe 7s ease-in-out infinite, spotFadeB 21s ease-in-out infinite;
         }
-        .o5::after{width:30%;height:16%;background:rgba(255,255,255,0.5);top:10%;left:18%;filter:blur(5px);transform:rotate(-24deg);animation:glint 10s ease-in-out infinite 3s}
-        .o5::before{width:11%;height:11%;background:rgba(255,255,255,0.85);top:7%;left:22%;filter:blur(2px)}
-
-        /* small purple */
-        .o6{
-          width:100px;height:100px;top:14%;right:18%;
-          background:radial-gradient(circle at 32% 27%,
-            #fff 0%,rgba(255,255,255,0.65) 5%,
-            rgba(196,181,253,0.55) 14%,
-            rgba(124,58,237,0.7) 32%,
-            rgba(76,29,149,0.85) 52%,
-            rgba(4,4,16,1) 100%
-          );
-          box-shadow:inset -6px -6px 14px rgba(0,0,0,0.55),inset 4px 4px 8px rgba(255,255,255,0.07),0 0 30px rgba(124,58,237,0.5),0 0 60px rgba(124,58,237,0.2);
-          animation:f1 24s ease-in-out infinite 6s;
+        .gbg-spot-c{background:radial-gradient(circle,rgba(244,114,182,.4),transparent 70%);
+          animation:spotBreathe 7s ease-in-out infinite, spotFadeC 21s ease-in-out infinite;
         }
-        .o6::after{width:28%;height:15%;background:rgba(255,255,255,0.5);top:10%;left:18%;filter:blur(4px);transform:rotate(-22deg)}
-        .o6::before{width:10%;height:10%;background:rgba(255,255,255,0.85);top:7%;left:22%;filter:blur(2px)}
+        .gbg-motes{position:absolute;inset:0;overflow:hidden}
+        .gbg-mote{position:absolute;bottom:0;border-radius:50%;
+          box-shadow:0 0 6px 1px currentColor;animation:moteRise linear infinite;
+        }
 
         /* ── NOISE ── */
         .noise{position:fixed;inset:0;z-index:1;opacity:0.03;pointer-events:none;
@@ -355,26 +293,22 @@ export default function Landing() {
 
         /* ── HERO RIGHT: BIG ORB + CHAT CARD ── */
         .hero-orb-wrap{position:relative;width:480px;height:480px;animation:heroOrb 18s ease-in-out infinite;flex-shrink:0}
-        .hero-orb{
-          width:100%;height:100%;border-radius:50%;
-          background:radial-gradient(circle at 30% 26%,
-            #fff 0%,rgba(255,255,255,0.8) 4%,
-            rgba(216,180,254,0.6) 10%,
-            rgba(139,92,246,0.65) 25%,
-            rgba(109,40,217,0.7) 42%,
-            rgba(13,148,136,0.5) 58%,
-            rgba(10,20,50,0.9) 75%,
-            rgba(4,4,16,1) 100%
-          );
-          box-shadow:
-            inset -40px -40px 80px rgba(0,0,0,0.6),
-            inset 20px 20px 40px rgba(255,255,255,0.06),
-            0 0 120px rgba(124,58,237,0.6),
-            0 0 240px rgba(124,58,237,0.25),
-            0 0 400px rgba(13,148,136,0.15);
+        .stack-card{
+          position:absolute;width:270px;height:182px;left:50%;top:50%;
+          background:rgba(15,12,30,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+          border:1px solid rgba(255,255,255,0.1);border-radius:18px;
+          padding:20px 22px;
+          box-shadow:0 24px 60px rgba(0,0,0,0.55),0 0 50px rgba(124,58,237,0.12);
+          animation:stackFloat 7s ease-in-out infinite;
         }
-        .hero-orb::before{content:'';position:absolute;width:42%;height:24%;background:rgba(255,255,255,0.55);top:10%;left:15%;filter:blur(12px);transform:rotate(-28deg);border-radius:50%}
-        .hero-orb::after{content:'';position:absolute;width:15%;height:15%;background:rgba(255,255,255,0.92);top:7%;left:20%;filter:blur(5px);border-radius:50%;box-shadow:0 0 20px rgba(255,255,255,0.7)}
+        .stack-card h4{font-size:13px;font-weight:800;color:#fff;margin:0 0 16px;display:flex;align-items:center;gap:9px}
+        .sc-icon{width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .sc-bar{height:8px;border-radius:5px;margin-bottom:9px;background:rgba(255,255,255,0.08);overflow:hidden}
+        .sc-bar span{display:block;height:100%;border-radius:5px}
+        .sc1{transform:translate(-50%,-50%) rotate(-10deg) translate(-72px,-52px);z-index:1;animation-delay:0s}
+        .sc2{transform:translate(-50%,-50%) rotate(-2deg) translate(-4px,2px);z-index:2;animation-delay:.4s}
+        .sc3{transform:translate(-50%,-50%) rotate(9deg) translate(66px,58px);z-index:3;animation-delay:.8s}
+        @keyframes stackFloat{0%,100%{margin-top:0}50%{margin-top:-10px}}
         .hero-chat-float{
           position:absolute;bottom:-24px;left:-60px;
           background:rgba(10,8,25,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
@@ -566,17 +500,32 @@ export default function Landing() {
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important}}
       `}</style>
 
-      {/* ── ORB STAGE ── */}
-      <div className="orb-stage" aria-hidden="true">
-        <div className="bg-glow bg-g1" />
-        <div className="bg-glow bg-g2" />
-        <div className="bg-glow bg-g3" />
-        <div className="orb o1" style={{ transform: `translate(${orbX * 0.5}px,${orbY * 0.4}px)` }} />
-        <div className="orb o2" style={{ transform: `translate(${-orbX * 0.35}px,${-orbY * 0.3}px)` }} />
-        <div className="orb o3" style={{ transform: `translate(${orbX * 0.25}px,${orbY * 0.45}px)` }} />
-        <div className="orb o4" style={{ transform: `translate(${-orbX * 0.45}px,${orbY * 0.3}px)` }} />
-        <div className="orb o5" style={{ transform: `translate(${orbX * 0.6}px,${-orbY * 0.35}px)` }} />
-        <div className="orb o6" style={{ transform: `translate(${-orbX * 0.3}px,${orbY * 0.5}px)` }} />
+      {/* ── GRID + SPOTLIGHT BG ── */}
+      <div className="gbg" aria-hidden="true">
+        <div className="gbg-grid" style={{ transform: `perspective(600px) rotateX(${62 + ny * 4}deg) rotateY(${nx * 4}deg)` }} />
+        <div className="gbg-horizon" />
+        <div className="gbg-spot-wrap" style={{ left: `${50 + nx * 16}%`, top: `${22 + ny * 12}%` }}>
+          <div className="gbg-spot gbg-spot-a" />
+          <div className="gbg-spot gbg-spot-b" />
+          <div className="gbg-spot gbg-spot-c" />
+        </div>
+        <div className="gbg-motes">
+          {motes.map((m, i) => (
+            <div
+              key={i}
+              className="gbg-mote"
+              style={{
+                left: `${m.left}%`,
+                width: `${m.size}px`,
+                height: `${m.size}px`,
+                background: m.color,
+                color: m.color,
+                animationDuration: `${m.duration}s`,
+                animationDelay: `${m.delay}s`,
+              }}
+            />
+          ))}
+        </div>
       </div>
       <div className="noise" aria-hidden="true" />
 
@@ -639,10 +588,43 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* RIGHT: BIG ORB + FLOATING CARDS */}
+          {/* RIGHT: STACKED OUTPUT CARDS + FLOATING CARDS */}
           <div className="hero-r">
             <div className="hero-orb-wrap">
-              <div className="hero-orb" />
+              {/* stacked output cards — the actual deliverables Clarity produces */}
+              <div className="stack-card sc1">
+                <h4>
+                  <span className="sc-icon" style={{ background: 'rgba(167,139,250,0.18)' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth={2.5}><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+                  </span>
+                  Spreadsheet
+                </h4>
+                <div className="sc-bar"><span style={{ width: '82%', background: '#a78bfa' }} /></div>
+                <div className="sc-bar"><span style={{ width: '56%', background: '#a78bfa' }} /></div>
+                <div className="sc-bar"><span style={{ width: '70%', background: '#a78bfa' }} /></div>
+              </div>
+              <div className="stack-card sc2">
+                <h4>
+                  <span className="sc-icon" style={{ background: 'rgba(52,211,153,0.18)' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth={2.5}><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+                  </span>
+                  Calendar
+                </h4>
+                <div className="sc-bar"><span style={{ width: '60%', background: '#34d399' }} /></div>
+                <div className="sc-bar"><span style={{ width: '92%', background: '#34d399' }} /></div>
+                <div className="sc-bar"><span style={{ width: '40%', background: '#34d399' }} /></div>
+              </div>
+              <div className="stack-card sc3">
+                <h4>
+                  <span className="sc-icon" style={{ background: 'rgba(244,114,182,0.18)' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f472b6" strokeWidth={2.5}><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                  </span>
+                  Action Plan
+                </h4>
+                <div className="sc-bar"><span style={{ width: '74%', background: '#f472b6' }} /></div>
+                <div className="sc-bar"><span style={{ width: '52%', background: '#f472b6' }} /></div>
+                <div className="sc-bar"><span style={{ width: '86%', background: '#f472b6' }} /></div>
+              </div>
 
               {/* floating chat card */}
               <div className="hero-chat-float">
@@ -770,7 +752,7 @@ export default function Landing() {
 
         {/* ── COMPARISON ── */}
         <section className="sec">
-          <div className="w-sm">
+          <div className="w">
             <p className="eyebrow">Why Clarity</p>
             <h2 className="sh" style={{ textAlign: 'center', marginBottom: '3rem' }}>
               Not just another <span className="grad">notes app.</span>

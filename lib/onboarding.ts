@@ -25,11 +25,13 @@ export async function completeOnboarding({
   email,
   displayName,
   creatorType,
+  goal,
 }: {
   userId: string
   email?: string | null
   displayName: string
   creatorType: string
+  goal?: string
 }) {
   const resolvedName = displayName.trim() || email?.split('@')[0] || 'Creator'
 
@@ -37,6 +39,7 @@ export async function completeOnboarding({
     data: {
       display_name: resolvedName,
       creator_type: creatorType,
+      goal: goal ?? '',
       onboarded: true,
     },
   })
@@ -50,6 +53,7 @@ export async function completeOnboarding({
       user_id: userId,
       display_name: resolvedName,
       creator_type: creatorType,
+      goal: goal ?? '',
       onboarded: true,
       plan: 'free',
       is_pro: false,
