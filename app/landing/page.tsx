@@ -1,7 +1,137 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
+const REVEAL_R = 260
+
+function RevealLayer({ image, cursorX, cursorY }: { image: string; cursorX: number; cursorY: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [maskUrl, setMaskUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    const resize = () => {
+      const canvas = canvasRef.current
+      if (!canvas) return
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener('resize', resize)
+    return () => window.removeEventListener('resize', resize)
+  }, [])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    const gradient = ctx.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, REVEAL_R)
+    gradient.addColorStop(0, 'rgba(255,255,255,1)')
+    gradient.addColorStop(0.4, 'rgba(255,255,255,1)')
+    gradient.addColorStop(0.6, 'rgba(255,255,255,0.75)')
+    gradient.addColorStop(0.75, 'rgba(255,255,255,0.4)')
+    gradient.addColorStop(0.88, 'rgba(255,255,255,0.12)')
+    gradient.addColorStop(1, 'rgba(255,255,255,0)')
+    ctx.fillStyle = gradient
+    ctx.beginPath()
+    ctx.arc(cursorX, cursorY, REVEAL_R, 0, Math.PI * 2)
+    ctx.fill()
+    setMaskUrl(canvas.toDataURL())
+  }, [cursorX, cursorY])
+
+  return (
+    <>
+      <canvas ref={canvasRef} className="reveal-canvas" aria-hidden="true" />
+      <div
+        className="reveal-mask"
+        style={{
+          backgroundImage: image,
+          WebkitMaskImage: maskUrl ? `url(${maskUrl})` : undefined,
+          maskImage: maskUrl ? `url(${maskUrl})` : undefined,
+          WebkitMaskSize: '100% 100%',
+          maskSize: '100% 100%',
+        } as React.CSSProperties}
+      />
+    </>
+  )
+}
+
+function RevealHero({ onStart }: { onStart: () => void }) {
+  const sectionRef = useRef<HTMLElement>(null)
+  const [revealCursor, setRevealCursor] = useState({ x: -999, y: -999 })
+  const revealMouse = useRef({ x: -999, y: -999 })
+  const revealSmooth = useRef({ x: -999, y: -999 })
+  const revealRaf = useRef<number | null>(null)
+
+  useEffect(() => {
+    const handleRevealMove = (e: MouseEvent) => {
+      revealMouse.current.x = e.clientX
+      revealMouse.current.y = e.clientY
+    }
+    window.addEventListener('mousemove', handleRevealMove, { passive: true })
+
+    const tick = () => {
+      // Mouse coords are viewport-relative, but the canvas/mask are positioned
+      // relative to this section — so subtract the section's own scroll offset
+      // or the spotlight drifts away from the real cursor once the page scrolls.
+      const rect = sectionRef.current?.getBoundingClientRect()
+      const targetX = revealMouse.current.x - (rect?.left ?? 0)
+      const targetY = revealMouse.current.y - (rect?.top ?? 0)
+      revealSmooth.current.x += (targetX - revealSmooth.current.x) * 0.1
+      revealSmooth.current.y += (targetY - revealSmooth.current.y) * 0.1
+      setRevealCursor({ x: revealSmooth.current.x, y: revealSmooth.current.y })
+      revealRaf.current = requestAnimationFrame(tick)
+    }
+    revealRaf.current = requestAnimationFrame(tick)
+
+    return () => {
+      window.removeEventListener('mousemove', handleRevealMove)
+      if (revealRaf.current) cancelAnimationFrame(revealRaf.current)
+    }
+  }, [])
+
+  return (
+    <section className="reveal-sec" ref={sectionRef}>
+      <div
+        className="reveal-base"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 12% 20%, rgba(167,139,250,0.45), transparent 22%),' +
+            'radial-gradient(circle at 80% 12%, rgba(244,114,182,0.4), transparent 20%),' +
+            'radial-gradient(circle at 28% 75%, rgba(251,191,36,0.35), transparent 24%),' +
+            'radial-gradient(circle at 88% 68%, rgba(94,234,212,0.4), transparent 22%),' +
+            'radial-gradient(circle at 55% 42%, rgba(124,58,237,0.35), transparent 28%),' +
+            'radial-gradient(circle at 18% 90%, rgba(96,165,250,0.3), transparent 20%),' +
+            'linear-gradient(160deg, #060418 0%, #0a0620 55%, #040410 100%)',
+        }}
+      />
+
+      <RevealLayer
+        cursorX={revealCursor.x}
+        cursorY={revealCursor.y}
+        image="repeating-linear-gradient(0deg, rgba(255,255,255,0.09) 0 1px, transparent 1px 42px), repeating-linear-gradient(90deg, rgba(255,255,255,0.09) 0 1px, transparent 1px 42px), linear-gradient(135deg, #7c3aed 0%, #0d9488 55%, #34d399 100%)"
+      />
+
+      <div className="reveal-h">
+        <h1>
+          <span className="l1 grad reveal-anim reveal-rise" style={{ animationDelay: '0.25s' }}>Find the clarity</span>
+          <span className="l2 reveal-anim reveal-rise" style={{ animationDelay: '0.42s' }}>in your chaos</span>
+        </h1>
+      </div>
+
+      <div className="reveal-bl reveal-anim reveal-fade-in" style={{ animationDelay: '0.7s' }}>
+        <p>Every idea you&apos;ve ever typed is still in there. Move your cursor and watch Clarity bring it into focus.</p>
+      </div>
+
+      <div className="reveal-br reveal-anim reveal-fade-in" style={{ animationDelay: '0.85s' }}>
+        <p>This is what happens every time you brain-dump: chaos in, a clear plan out — in seconds.</p>
+        <button type="button" className="btn-primary" onClick={onStart}>Start free →</button>
+      </div>
+    </section>
+  )
+}
 
 export default function Landing() {
   const router = useRouter()
@@ -28,13 +158,18 @@ export default function Landing() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) return
     const colors = ['#a78bfa', '#5eead4', '#f9a8d4', '#93c5fd']
-    setMotes(Array.from({ length: 18 }, (_, i) => ({
-      left: Math.random() * 100,
-      size: Math.random() * 2.5 + 1.5,
-      color: colors[i % colors.length],
-      duration: Math.random() * 8 + 12,
-      delay: -(Math.random() * 14),
-    })))
+    // setState is deferred into the rAF callback (rather than called inline in the
+    // effect body) so this is a subscription-style update, not a synchronous one.
+    const raf = requestAnimationFrame(() => {
+      setMotes(Array.from({ length: 18 }, (_, i) => ({
+        left: Math.random() * 100,
+        size: Math.random() * 2.5 + 1.5,
+        color: colors[i % colors.length],
+        duration: Math.random() * 8 + 12,
+        delay: -(Math.random() * 14),
+      })))
+    })
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
@@ -338,6 +473,34 @@ export default function Landing() {
         .mq-wrap{position:relative;z-index:2;overflow:hidden;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);padding:1.1rem 0;mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent)}
         .mq-track{display:flex;gap:0;width:max-content;animation:marquee 28s linear infinite}
         .mq-item{display:flex;align-items:center;gap:10px;padding:0 2.5rem;font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);white-space:nowrap;letter-spacing:0.06em;text-transform:uppercase}
+
+        /* ── REVEAL HERO (cursor spotlight) ── */
+        .reveal-sec{position:relative;width:100%;overflow:hidden;height:100vh;height:100dvh;background:#000;z-index:2}
+        .reveal-base{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;z-index:1;animation:revealZoom 1.8s cubic-bezier(0.16,1,0.3,1) forwards}
+        .reveal-canvas{position:absolute;inset:0;display:none;pointer-events:none}
+        .reveal-mask{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;z-index:3;pointer-events:none}
+        .reveal-h{position:absolute;top:14%;left:0;right:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 20px;pointer-events:none;z-index:5}
+        .reveal-h h1{line-height:0.95;margin:0}
+        .reveal-h .l1{display:block;font-style:italic;font-weight:600;font-size:clamp(40px,7vw,84px);letter-spacing:-0.04em}
+        .reveal-h .l2{display:block;font-weight:800;font-size:clamp(40px,7vw,84px);letter-spacing:-0.04em;margin-top:-4px;color:white}
+        .reveal-bl{position:absolute;bottom:3.5rem;left:2.5rem;max-width:260px;z-index:5}
+        .reveal-bl p{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.7;margin:0}
+        .reveal-br{position:absolute;bottom:2.5rem;right:2.5rem;max-width:280px;display:flex;flex-direction:column;align-items:flex-start;gap:18px;z-index:5}
+        .reveal-br p{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.7;margin:0}
+        .reveal-anim{opacity:0;animation-fill-mode:forwards;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}
+        .reveal-fade-in{animation-name:revealFadeUp;animation-duration:1s}
+        .reveal-rise{animation-name:revealRise;animation-duration:1.1s}
+        @media (max-width:760px){
+          .reveal-bl{display:none}
+          .reveal-br{left:1.5rem;right:1.5rem;bottom:2rem;max-width:none;align-items:center;text-align:center}
+        }
+        @keyframes revealZoom{0%{transform:scale(1.12)}100%{transform:scale(1)}}
+        @keyframes revealFadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+        @keyframes revealRise{0%{opacity:0;transform:translateY(28px);filter:blur(12px)}100%{opacity:1;transform:translateY(0);filter:blur(0)}}
+        @media (prefers-reduced-motion: reduce){
+          .reveal-anim{animation:none !important;opacity:1 !important}
+          .reveal-base{animation:none !important}
+        }
 
         /* ── SECTIONS ── */
         .sec{padding:8rem 5rem;position:relative;z-index:2}
@@ -668,6 +831,9 @@ export default function Landing() {
             ))}
           </div>
         </div>
+
+        {/* ── REVEAL HERO (cursor spotlight) ── */}
+        <RevealHero onStart={() => router.push('/login')} />
 
         {/* ── HOW IT WORKS ── */}
         <section id="how-it-works" className="sec">
