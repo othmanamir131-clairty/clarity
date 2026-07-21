@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import DOMPurify from 'dompurify'
 import { useProfile } from '../../lib/useProfile'
 import UpgradeGate from '../../lib/UpgradeGate'
 
@@ -234,7 +235,7 @@ export default function Content() {
               </div>
               <div
                 style={{ fontSize: '14px', color: 'rgba(255,255,255,0.85)', lineHeight: '1.85', whiteSpace: 'pre-wrap' }}
-                dangerouslySetInnerHTML={{ __html: formatAiText(result) }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formatAiText(result)) }}
               />
               <button
                 onClick={generate}

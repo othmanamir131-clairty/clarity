@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import DOMPurify from 'dompurify'
 import { supabase } from '../lib/supabase'
 import { isUserOnboarded } from '../lib/onboarding'
 import { countUserIdeas, fetchUserIdeas } from '../lib/ideas'
@@ -775,7 +776,7 @@ export default function Home() {
                     backdropFilter: 'blur(10px)',
                   }}>
                     {msg.role === 'ai'
-                      ? <span dangerouslySetInnerHTML={{ __html: formatAiText(msg.content) }} />
+                      ? <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formatAiText(msg.content)) }} />
                       : msg.content}
                   </div>
                 </div>

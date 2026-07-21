@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import DOMPurify from 'dompurify'
 import { supabase } from '../../lib/supabase'
 import { fetchUserIdeas } from '../../lib/ideas'
 import { useProfile } from '../../lib/useProfile'
@@ -196,7 +197,7 @@ export default function Report() {
               <div style={{ fontSize: '14px', fontWeight: '700', color: 'rgba(255,255,255,0.5)', marginBottom: '1.25rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>📋 Your personal report</div>
               <div
                 style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', lineHeight: '1.9' }}
-                dangerouslySetInnerHTML={{ __html: formatAiText(report) }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formatAiText(report)) }}
               />
             </div>
           )}
