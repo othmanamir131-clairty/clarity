@@ -2,64 +2,127 @@
 
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { getAuthConfirmUrl, getPostAuthPath } from '../../lib/auth'
+import { getAuthConfirmUrl, getPasswordResetUrl, getPostAuthPath } from '../../lib/auth'
+
+type Mode = 'signin' | 'signup' | 'forgot'
 
 export default function Login() {
+  const [mode, setMode] = useState<Mode>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('')
+
+  const switchMode = (next: Mode) => {
+    setMode(next)
+    setMessage('')
+    setMessageType('')
+  }
 
   const handleAuth = async () => {
     setLoading(true)
     setMessage('')
+    setMessageType('')
 
-    if (isSignUp) {
+    if (mode === 'signup') {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: getAuthConfirmUrl() },
       })
-      if (error) setMessage(error.message)
-      else setMessage('Check your email! Click the confirmation link to activate your account.')
+      if (error) {
+        setMessage(error.message)
+        setMessageType('error')
+      } else {
+        setMessage('Check your email! Click the confirmation link to activate your account.')
+        setMessageType('success')
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setMessage(error.message)
-      else window.location.href = await getPostAuthPath()
+      if (error) {
+        setMessage(error.message)
+        setMessageType('error')
+      } else {
+        window.location.href = await getPostAuthPath()
+      }
     }
     setLoading(false)
+  }
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setMessage('Enter your email address first.')
+      setMessageType('error')
+      return
+    }
+    setLoading(true)
+    setMessage('')
+    setMessageType('')
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: getPasswordResetUrl(),
+    })
+    if (error) {
+      setMessage(error.message)
+      setMessageType('error')
+    } else {
+      setMessage('Check your email for a reset link.')
+      setMessageType('success')
+    }
+    setLoading(false)
+  }
+
+  const handleSubmit = () => {
+    if (loading) return
+    if (mode === 'forgot') handleForgotPassword()
+    else handleAuth()
   }
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
           font-family: 'Plus Jakarta Sans', sans-serif;
           min-height: 100vh;
-          background: #2e1065;
+          background: #fafdfb;
+        }
+
+        @keyframes auroraDrift {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(40px, 30px) scale(1.08); }
+        }
+
+        .aurora { position: absolute; border-radius: 9999px; filter: blur(90px); }
+        .aurora-a {
+          width: 560px; height: 560px; top: -200px; left: -160px;
+          background: radial-gradient(circle, rgba(16,185,129,0.32), transparent 70%);
+          animation: auroraDrift 22s ease-in-out infinite;
+        }
+        .aurora-b {
+          width: 480px; height: 480px; bottom: -180px; right: -160px;
+          background: radial-gradient(circle, rgba(5,150,105,0.22), transparent 70%);
+          animation: auroraDrift 27s ease-in-out infinite reverse;
         }
 
         .login-card {
-          background: rgba(0,0,0,0.4);
+          background: #ffffff;
           border-radius: 24px;
           padding: 2.75rem;
           width: 100%;
           max-width: 420px;
-          box-shadow: 0 24px 64px rgba(0,0,0,0.45);
-          border: 1px solid rgba(255,255,255,0.12);
+          box-shadow: 0 24px 64px -24px rgba(16,185,129,0.35);
+          border: 1px solid rgba(16,185,129,0.15);
         }
 
         .input-field {
           width: 100%;
           padding: 13px 16px;
           border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.15);
-          background: rgba(255,255,255,0.1);
-          color: white;
+          border: 1px solid rgba(16,185,129,0.15);
+          background: rgba(16,185,129,0.03);
+          color: #0f1c17;
           font-size: 14px;
           outline: none;
           transition: all 0.2s ease;
@@ -67,18 +130,18 @@ export default function Login() {
         }
 
         .input-field::placeholder {
-          color: rgba(255,255,255,0.35);
+          color: #5b6b64;
         }
 
         .input-field:focus {
-          border-color: rgba(167,139,250,0.6);
-          background: rgba(255,255,255,0.14);
-          box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
+          border-color: rgba(16,185,129,0.5);
+          background: #ffffff;
+          box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
         }
 
         .submit-btn {
           width: 100%;
-          background: linear-gradient(135deg, #7c3aed, #0d9488);
+          background: linear-gradient(135deg, #10b981, #059669);
           color: white;
           border: none;
           border-radius: 12px;
@@ -93,7 +156,7 @@ export default function Login() {
 
         .submit-btn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(124,58,237,0.4);
+          box-shadow: 0 8px 24px -6px rgba(16,185,129,0.5);
         }
 
         .submit-btn:disabled {
@@ -103,20 +166,36 @@ export default function Login() {
         }
 
         .toggle-link {
-          color: #a78bfa;
+          color: #059669;
           cursor: pointer;
           font-weight: 700;
           transition: color 0.2s;
         }
 
         .toggle-link:hover {
-          color: #c4b5fd;
+          color: #065f46;
+        }
+
+        .forgot-link {
+          color: #5b6b64;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 13px;
+          transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+          color: #065f46;
         }
 
         .divider {
           height: 1px;
-          background: rgba(255,255,255,0.1);
+          background: rgba(16,185,129,0.12);
           margin: 1.5rem 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .aurora { animation: none !important; }
         }
 
         @media (max-width: 768px) {
@@ -155,33 +234,34 @@ export default function Login() {
         }
       `}</style>
 
-      <div style={{ position: 'fixed', inset: 0, background: '#2e1065', zIndex: 0 }}>
-        <div style={{ position: 'fixed', inset: 0, background: 'linear-gradient(160deg, #2e1065 0%, #4c1d95 25%, #1e3a5f 60%, #064e3b 100%)' }} />
+      <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <div className="aurora aurora-a" />
+        <div className="aurora aurora-b" />
       </div>
 
       <div style={{ position: 'relative', minHeight: '100vh', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
         <div className="login-card">
           {/* Social proof bar */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '1.5rem', background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '100px', padding: '6px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '1.5rem', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', borderRadius: '100px', padding: '6px 16px' }}>
             <div style={{ display: 'flex', marginRight: '2px' }}>
-              {['#a78bfa','#34d399','#fbbf24'].map((c, i) => (
-                <div key={i} style={{ width: '22px', height: '22px', borderRadius: '50%', background: c, border: '2px solid rgba(255,255,255,0.2)', marginLeft: i > 0 ? '-8px' : 0, fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {['🎬','✍️','🎙️'][i]}
+              {['#10b981', '#059669', '#fbbf24'].map((c, i) => (
+                <div key={i} style={{ width: '22px', height: '22px', borderRadius: '50%', background: c, border: '2px solid #ffffff', marginLeft: i > 0 ? '-8px' : 0, fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {['🎬', '✍️', '🎙️'][i]}
                 </div>
               ))}
             </div>
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', fontWeight: '600' }}>2,400+ creators already inside</span>
+            <span style={{ fontSize: '12px', color: '#065f46', fontWeight: '600' }}>2,400+ creators already inside</span>
           </div>
 
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <div style={{ fontSize: '28px', fontWeight: '800', color: 'white', letterSpacing: '-0.5px', marginBottom: '6px' }}>
-              ✦ Clarity
+            <div style={{ fontSize: '28px', fontWeight: '800', color: '#0f1c17', letterSpacing: '-0.5px', marginBottom: '6px' }}>
+              <span style={{ backgroundImage: 'linear-gradient(135deg,#10b981,#059669)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>✦</span> Clarity
             </div>
-            <div style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginBottom: '4px' }}>
-              {isSignUp ? 'Start organizing your ideas' : 'Welcome back'}
+            <div style={{ fontSize: '15px', fontWeight: '700', color: '#0f1c17', marginBottom: '4px' }}>
+              {mode === 'signup' ? 'Start organizing your ideas' : mode === 'forgot' ? 'Reset your password' : 'Welcome back'}
             </div>
-            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontWeight: '500' }}>
-              Dump your ideas. Get an instant action plan.
+            <div style={{ fontSize: '13px', color: '#5b6b64', fontWeight: '500' }}>
+              {mode === 'forgot' ? "Enter your email and we'll send a reset link" : 'Dump your ideas. Get an instant action plan.'}
             </div>
           </div>
 
@@ -192,22 +272,34 @@ export default function Login() {
               placeholder="Email address"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
             />
-            <input
-              className="input-field"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleAuth()}
-            />
+
+            {mode !== 'forgot' && (
+              <input
+                className="input-field"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              />
+            )}
+
+            {mode === 'signin' && (
+              <div style={{ textAlign: 'right', marginTop: '-4px' }}>
+                <span className="forgot-link" onClick={() => switchMode('forgot')}>
+                  Forgot password?
+                </span>
+              </div>
+            )}
 
             {message && (
               <div style={{
                 fontSize: '13px',
-                color: 'rgba(255,255,255,0.9)',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
+                color: messageType === 'error' ? '#dc2626' : '#065f46',
+                background: messageType === 'error' ? 'rgba(220,38,38,0.06)' : 'rgba(16,185,129,0.08)',
+                border: `1px solid ${messageType === 'error' ? 'rgba(220,38,38,0.2)' : 'rgba(16,185,129,0.2)'}`,
                 padding: '10px 14px',
                 borderRadius: '10px',
                 fontWeight: '500',
@@ -216,26 +308,34 @@ export default function Login() {
               </div>
             )}
 
-            <button className="submit-btn" onClick={handleAuth} disabled={loading}>
-              {loading ? 'Loading...' : isSignUp ? 'Create account' : 'Sign in'}
+            <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
+              {loading ? 'Loading...' : mode === 'signup' ? 'Create account' : mode === 'forgot' ? 'Send reset link' : 'Sign in'}
             </button>
           </div>
 
           <div className="divider" />
 
-          <div style={{ textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.45)' }}>
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-            <span className="toggle-link" onClick={() => { setIsSignUp(!isSignUp); setMessage('') }}>
-              {isSignUp ? 'Sign in' : 'Sign up'}
-            </span>
-          </div>
+          {mode === 'forgot' ? (
+            <div style={{ textAlign: 'center', fontSize: '14px', color: '#5b6b64' }}>
+              <span className="toggle-link" onClick={() => switchMode('signin')}>
+                ← Back to sign in
+              </span>
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', fontSize: '14px', color: '#5b6b64' }}>
+              {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}{' '}
+              <span className="toggle-link" onClick={() => switchMode(mode === 'signup' ? 'signin' : 'signup')}>
+                {mode === 'signup' ? 'Sign in' : 'Sign up'}
+              </span>
+            </div>
+          )}
 
           <div style={{ textAlign: 'center', marginTop: '1rem' }}>
             <span
               onClick={() => window.location.href = '/landing'}
-              style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', transition: 'color 0.2s', fontWeight: '500' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
+              style={{ fontSize: '13px', color: '#5b6b64', cursor: 'pointer', transition: 'color 0.2s', fontWeight: '500' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#0f1c17')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#5b6b64')}>
               ← Back to home
             </span>
           </div>

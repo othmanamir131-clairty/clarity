@@ -8,6 +8,13 @@ export function getAuthConfirmUrl() {
   return `${base}/auth/confirm`
 }
 
+export function getPasswordResetUrl() {
+  const base =
+    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
+    (typeof window !== 'undefined' ? window.location.origin : '')
+  return `${base}/reset-password`
+}
+
 export async function getPostAuthPath(): Promise<string> {
   const {
     data: { user },
