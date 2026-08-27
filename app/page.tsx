@@ -26,6 +26,7 @@ export default function Home() {
   const [ideasCount, setIdeasCount] = useState(0)
   const [spreadsheetData, setSpreadsheetData] = useState<any>(null)
   const [outputsCount, setOutputsCount] = useState(0)
+  const [clarityScore, setClarityScore] = useState<number | null>(null)
   const [recentSpreadsheets, setRecentSpreadsheets] = useState<any[]>([])
   const [streak, setStreak] = useState(0)
   const [displayName, setDisplayName] = useState('')
@@ -69,7 +70,7 @@ export default function Home() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('onboarded, display_name')
+        .select('onboarded, display_name, clarity_score')
         .eq('user_id', data.user.id)
         .maybeSingle()
 
@@ -84,6 +85,11 @@ export default function Home() {
           (data.user.user_metadata?.display_name as string | undefined) ||
           data.user.email?.split('@')[0] ||
           'there'
+      )
+      setClarityScore(
+        profile?.clarity_score !== null && profile?.clarity_score !== undefined
+          ? profile.clarity_score
+          : null
       )
       await Promise.all([fetchIdeas(), fetchAiUsage()])
 
@@ -685,7 +691,7 @@ export default function Home() {
             {[
               { label: 'Ideas saved',    value: ideasCount.toString(), sub: 'View all →',        icon: '💡', glow: 'rgba(167,139,250,0.3)', path: '/ideas' },
               { label: 'Outputs created', value: outputsCount.toString(), sub: outputsCount > 0 ? 'View below ↓' : 'Ask AI to create', icon: '📊', glow: 'rgba(52,211,153,0.3)', path: '/' },
-              { label: 'Clarity Score',  value: '—',                   sub: 'Get your score →',  icon: '✨', glow: 'rgba(251,191,36,0.3)',  path: '/report' },
+              { label: 'Clarity Score',  value: clarityScore !== null ? clarityScore.toString() : '—', sub: clarityScore !== null ? 'View report →' : 'Get your score →', icon: '✨', glow: 'rgba(251,191,36,0.3)',  path: '/report' },
             ].map(stat => (
               <div key={stat.label} className="stat-card" onClick={() => window.location.href = stat.path}
                 style={{ ...glass, padding: '1.5rem', position: 'relative', overflow: 'hidden', boxShadow: `0 4px 24px ${stat.glow}` }}>

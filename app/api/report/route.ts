@@ -116,13 +116,28 @@ The report should:
       success: true, durationMs: Date.now() - startedAt,
     })
 
+    let parsed: { score: number; report: string }
     try {
       const clean = content.text.replace(/```json|```/g, '').trim()
-      const parsed = JSON.parse(clean)
-      return NextResponse.json(parsed)
+      parsed = JSON.parse(clean)
     } catch {
-      return NextResponse.json({ score: 50, report: content.text })
+      parsed = { score: 50, report: content.text }
     }
+
+    const { error: saveError } = await supabase
+      .from('profiles')
+      .upsert(
+        {
+          user_id: user.id,
+          clarity_score: parsed.score,
+          clarity_report: parsed.report,
+          clarity_score_updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id' }
+      )
+    if (saveError) console.error('Failed to save clarity score:', saveError)
+
+    return NextResponse.json(parsed)
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
     logAiCall(supabase, {

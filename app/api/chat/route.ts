@@ -15,6 +15,21 @@ const client = new Anthropic({
 
 const MODEL = 'claude-sonnet-4-6'
 
+async function saveChatOutput(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string,
+  message: string,
+  replyText: string
+) {
+  const { error } = await supabase.from('outputs').insert({
+    user_id: userId,
+    type: 'chat',
+    title: message.length > 80 ? message.slice(0, 80) + '…' : message,
+    payload: { message, reply: replyText },
+  })
+  if (error) console.error('Failed to save chat output:', error)
+}
+
 export async function POST(request: NextRequest) {
   const startedAt = Date.now()
 
@@ -169,14 +184,16 @@ When a user sends you a message:
       try {
         const clean = content.text.replace(/```json|```/g, '').trim()
         const parsed = JSON.parse(clean)
-        await supabase.from('outputs').insert({
+        const { error: outputError } = await supabase.from('outputs').insert({
           user_id: user.id,
           type: 'spreadsheet',
           title: parsed.title,
           payload: { headers: parsed.headers, rows: parsed.rows },
         })
+        if (outputError) console.error('Failed to save spreadsheet output:', outputError)
         return NextResponse.json({ reply: parsed.message, spreadsheet: parsed, usage, tokens: totalTokens })
       } catch {
+        await saveChatOutput(supabase, user.id, message, content.text)
         return NextResponse.json({ reply: content.text, usage, tokens: totalTokens })
       }
     } catch (err: unknown) {
@@ -222,8 +239,13 @@ When a user sends you a message:
 
         const final = await stream.finalMessage()
         const totalTokens = final.usage.input_tokens + final.usage.output_tokens
+        const replyText = final.content
+          .filter((block): block is Extract<typeof block, { type: 'text' }> => block.type === 'text')
+          .map(block => block.text)
+          .join('')
 
         await supabase.from('ideas').insert({ content: message, tag: 'General', user_id: user.id })
+        await saveChatOutput(supabase, user.id, message, replyText)
         const usedAfter = await incrementAiUsage(supabase, user.id)
         const usage = buildUsageStats(plan, usedAfter)
 

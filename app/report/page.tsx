@@ -33,10 +33,23 @@ export default function Report() {
   const { loading: profileLoading, isPro } = useProfile()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) window.location.href = '/landing'
-      else {
-        fetchUserIdeas().then(setIdeas)
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) {
+        window.location.href = '/landing'
+        return
+      }
+      fetchUserIdeas().then(setIdeas)
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('clarity_score, clarity_report')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+
+      if (profile?.clarity_score !== null && profile?.clarity_score !== undefined) {
+        setScore(profile.clarity_score)
+        setReport(profile.clarity_report ?? '')
+        setGenerated(true)
       }
     })
   }, [])

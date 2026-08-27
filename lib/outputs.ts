@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import { getCurrentUserId } from './ideas'
 
-export type OutputType = 'spreadsheet' | 'brief' | 'schedule_post'
+export type OutputType = 'spreadsheet' | 'brief' | 'schedule_post' | 'chat'
 
 export type UserOutput = {
   id: string
