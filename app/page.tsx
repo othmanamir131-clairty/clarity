@@ -9,12 +9,14 @@ import { countOutputs, fetchOutputs } from '../lib/outputs'
 import { FREE_DAILY_AI_LIMIT, type AiUsageStats } from '../lib/aiLimits'
 import * as XLSX from 'xlsx'
 
+const GREEN_GRADIENT = 'linear-gradient(135deg,#10b981,#059669)'
+
 // Escape raw text then apply only safe formatting — no dangerouslySetInnerHTML risk
 const formatAiText = (text: string) =>
   text
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/\n/g, '<br/>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#a78bfa">$1</strong>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#065f46">$1</strong>')
 
 export default function Home() {
   const [input, setInput] = useState('')
@@ -260,36 +262,28 @@ export default function Home() {
     return 'Good evening'
   }
 
-  // Glass card style — reused everywhere
+  // Card style — reused everywhere
   const glass = {
-    background: 'rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,0.15)',
+    background: '#ffffff',
+    border: '1px solid rgba(16,185,129,0.15)',
     borderRadius: '20px',
   } as React.CSSProperties
 
   const glassDark = {
-    background: 'rgba(0,0,0,0.25)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: '#ffffff',
+    border: '1px solid rgba(16,185,129,0.15)',
     borderRadius: '20px',
   } as React.CSSProperties
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Full page gradient — same DNA as landing hero */
         body {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          background: linear-gradient(160deg, #2e1065 0%, #4c1d95 25%, #1e3a5f 60%, #064e3b 100%);
-          background-attachment: fixed;
+          background: #fafdfb;
           min-height: 100vh;
-          color: white;
+          color: #0f1c17;
         }
 
         @keyframes spin    { to { transform: rotate(360deg); } }
@@ -306,16 +300,16 @@ export default function Home() {
           display: flex; align-items: center; gap: 10px;
           padding: 9px 14px; border-radius: 12px;
           font-size: 14px; font-weight: 500;
-          color: rgba(255,255,255,0.55);
+          color: #5b6b64;
           cursor: pointer; transition: all 0.18s ease;
         }
         .nav-item:hover {
-          background: rgba(255,255,255,0.1);
-          color: white;
+          background: rgba(16,185,129,0.08);
+          color: #0f1c17;
         }
         .nav-item.active {
-          background: rgba(255,255,255,0.15);
-          color: white;
+          background: rgba(16,185,129,0.12);
+          color: #065f46;
           font-weight: 700;
         }
 
@@ -326,31 +320,31 @@ export default function Home() {
         }
         .stat-card:hover {
           transform: translateY(-4px);
-          background: rgba(255,255,255,0.14) !important;
-          box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+          border-color: rgba(16,185,129,0.35);
+          box-shadow: 0 16px 40px -14px rgba(16,185,129,0.35);
         }
 
         /* Quick action chips */
         .chip {
           display: inline-flex; align-items: center; gap: 7px;
           padding: 9px 18px; border-radius: 100px;
-          background: rgba(255,255,255,0.1);
-          border: 1px solid rgba(255,255,255,0.18);
+          background: rgba(16,185,129,0.08);
+          border: 1px solid rgba(16,185,129,0.2);
           font-size: 13px; font-weight: 600;
-          color: rgba(255,255,255,0.8);
+          color: #065f46;
           cursor: pointer; transition: all 0.18s ease;
           white-space: nowrap;
         }
         .chip:hover {
-          background: rgba(255,255,255,0.2);
-          color: white;
+          background: rgba(16,185,129,0.15);
+          color: #065f46;
           transform: translateY(-2px);
         }
 
         /* Send button */
         .send-btn {
-          background: white;
-          color: #4c1d95;
+          background: linear-gradient(135deg,#10b981,#059669);
+          color: white;
           border: none; border-radius: 100px;
           padding: 11px 24px;
           font-size: 13px; font-weight: 800;
@@ -360,7 +354,7 @@ export default function Home() {
         }
         .send-btn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(255,255,255,0.25);
+          box-shadow: 0 8px 20px -4px rgba(16,185,129,0.5);
         }
 
         /* Idea rows */
@@ -369,20 +363,20 @@ export default function Home() {
           cursor: pointer;
           transition: all 0.15s ease;
         }
-        .idea-row:hover { background: rgba(255,255,255,0.08); }
+        .idea-row:hover { background: rgba(16,185,129,0.06); }
 
         /* Tool rows */
         .tool-row {
           display: flex; align-items: center; gap: 12px;
           padding: 12px 16px; border-radius: 14px;
-          background: rgba(255,255,255,0.07);
-          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(16,185,129,0.05);
+          border: 1px solid rgba(16,185,129,0.15);
           cursor: pointer; transition: all 0.18s ease;
         }
         .tool-row:hover {
-          background: rgba(255,255,255,0.14);
+          background: rgba(16,185,129,0.1);
           transform: translateX(4px);
-          border-color: rgba(255,255,255,0.2);
+          border-color: rgba(16,185,129,0.3);
         }
 
         /* Premium cards */
@@ -392,13 +386,13 @@ export default function Home() {
         }
         .premium-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+          box-shadow: 0 20px 50px -18px rgba(16,185,129,0.4);
         }
 
         .spinner {
           width: 15px; height: 15px;
-          border: 2px solid rgba(255,255,255,0.2);
-          border-top: 2px solid white;
+          border: 2px solid rgba(16,185,129,0.2);
+          border-top: 2px solid #10b981;
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }
@@ -419,7 +413,7 @@ export default function Home() {
             top: 0; height: 100vh; z-index: 100;
             transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
             width: 260px !important;
-            box-shadow: 4px 0 40px rgba(0,0,0,0.5);
+            box-shadow: 4px 0 30px rgba(15,28,23,0.12);
           }
           .sidebar.open { left: 0 !important; }
           .overlay { display: block; }
@@ -495,11 +489,11 @@ export default function Home() {
         }
       `}</style>
 
-      {/* Ambient blobs — depth behind everything */}
+      {/* Ambient aurora — depth behind everything */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'rgba(124,58,237,0.35)', filter: 'blur(100px)', animation: 'blob 18s ease-in-out infinite' }} />
-        <div style={{ position: 'absolute', bottom: '-15%', right: '-10%', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(13,148,136,0.3)', filter: 'blur(90px)', animation: 'blob 14s ease-in-out infinite reverse' }} />
-        <div style={{ position: 'absolute', top: '40%', left: '35%', width: '400px', height: '400px', borderRadius: '50%', background: 'rgba(59,7,100,0.4)', filter: 'blur(80px)', animation: 'blob 20s ease-in-out infinite 3s' }} />
+        <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'rgba(16,185,129,0.18)', filter: 'blur(100px)', animation: 'blob 18s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', bottom: '-15%', right: '-10%', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(5,150,105,0.14)', filter: 'blur(90px)', animation: 'blob 14s ease-in-out infinite reverse' }} />
+        <div style={{ position: 'absolute', top: '40%', left: '35%', width: '400px', height: '400px', borderRadius: '50%', background: 'rgba(6,95,70,0.12)', filter: 'blur(80px)', animation: 'blob 20s ease-in-out infinite 3s' }} />
       </div>
 
       <div style={{ display: 'flex', minHeight: '100vh', position: 'relative', zIndex: 1 }}>
@@ -508,25 +502,25 @@ export default function Home() {
 
         {/* ── UPGRADE MODAL ── */}
         {showUpgradeModal && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={() => setShowUpgradeModal(false)}>
-            <div style={{ background: 'linear-gradient(160deg, #2e1065, #1e3a5f)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '28px', padding: '2.5rem', maxWidth: '440px', width: '100%', boxShadow: '0 32px 80px rgba(0,0,0,0.6)', animation: 'fadeUp 0.3s ease', position: 'relative' }} onClick={e => e.stopPropagation()}>
-              <button onClick={() => setShowUpgradeModal(false)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', color: 'white', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>✕</button>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,28,23,0.5)', backdropFilter: 'blur(12px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={() => setShowUpgradeModal(false)}>
+            <div style={{ background: '#ffffff', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '28px', padding: '2.5rem', maxWidth: '440px', width: '100%', boxShadow: '0 32px 80px rgba(15,28,23,0.18)', animation: 'fadeUp 0.3s ease', position: 'relative' }} onClick={e => e.stopPropagation()}>
+              <button onClick={() => setShowUpgradeModal(false)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'rgba(16,185,129,0.08)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', color: '#5b6b64', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>✕</button>
               <div style={{ fontSize: '40px', marginBottom: '1rem' }}>⚡</div>
-              <div style={{ fontSize: '22px', fontWeight: '800', color: 'white', letterSpacing: '-0.5px', marginBottom: '8px' }}>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: '#0f1c17', letterSpacing: '-0.5px', marginBottom: '8px' }}>
                 You've used all {FREE_DAILY_AI_LIMIT} daily messages
               </div>
-              <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.65, marginBottom: '1.5rem' }}>
-                Free plan resets tomorrow. Upgrade to Pro for <strong style={{ color: 'white' }}>unlimited AI messages</strong>, Clarity Score, Content Brief, and more — for less than $1/day.
+              <div style={{ fontSize: '14px', color: '#5b6b64', lineHeight: 1.65, marginBottom: '1.5rem' }}>
+                Free plan resets tomorrow. Upgrade to Pro for <strong style={{ color: '#0f1c17' }}>unlimited AI messages</strong>, Clarity Score, Content Brief, and more — for less than $1/day.
               </div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '1rem' }}>
                 {['Unlimited AI', 'Clarity Score', 'Content Brief', 'Post Schedule'].map(f => (
-                  <div key={f} style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '100px', padding: '4px 12px', fontSize: '12px', fontWeight: '600', color: '#c4b5fd' }}>{f}</div>
+                  <div key={f} style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '100px', padding: '4px 12px', fontSize: '12px', fontWeight: '600', color: '#065f46' }}>{f}</div>
                 ))}
               </div>
-              <button onClick={() => window.location.href = '/pricing'} style={{ width: '100%', background: 'linear-gradient(135deg, #7c3aed, #0d9488)', border: 'none', borderRadius: '14px', color: 'white', fontSize: '15px', fontWeight: '800', padding: '14px', cursor: 'pointer', fontFamily: 'inherit', marginBottom: '10px' }}>
+              <button onClick={() => window.location.href = '/pricing'} style={{ width: '100%', backgroundImage: GREEN_GRADIENT, border: 'none', borderRadius: '14px', color: 'white', fontSize: '15px', fontWeight: '800', padding: '14px', cursor: 'pointer', fontFamily: 'inherit', marginBottom: '10px' }}>
                 Unlock unlimited for $29.99/mo →
               </button>
-              <button onClick={() => setShowUpgradeModal(false)} style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '14px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', fontWeight: '600', padding: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => setShowUpgradeModal(false)} style={{ width: '100%', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '14px', color: '#5b6b64', fontSize: '14px', fontWeight: '600', padding: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>
                 I'll wait until tomorrow
               </button>
             </div>
@@ -535,7 +529,7 @@ export default function Home() {
 
         {/* ── UPGRADE SUCCESS BANNER ── */}
         {showUpgradeSuccess && upgradedPlan && (
-          <div style={{ position: 'fixed', top: '1.25rem', left: '50%', transform: 'translateX(-50%)', zIndex: 300, display: 'flex', alignItems: 'center', gap: '12px', background: 'linear-gradient(135deg, rgba(16,185,129,0.95), rgba(5,150,105,0.95))', backdropFilter: 'blur(16px)', border: '1px solid rgba(52,211,153,0.4)', borderRadius: '16px', padding: '14px 20px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)', animation: 'fadeUp 0.4s ease', maxWidth: '420px', width: 'calc(100% - 2rem)' }}>
+          <div style={{ position: 'fixed', top: '1.25rem', left: '50%', transform: 'translateX(-50%)', zIndex: 300, display: 'flex', alignItems: 'center', gap: '12px', background: 'linear-gradient(135deg, rgba(16,185,129,0.95), rgba(5,150,105,0.95))', backdropFilter: 'blur(16px)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '16px', padding: '14px 20px', boxShadow: '0 8px 40px rgba(6,95,70,0.3)', animation: 'fadeUp 0.4s ease', maxWidth: '420px', width: 'calc(100% - 2rem)' }}>
             <div style={{ fontSize: '28px', flexShrink: 0 }}>🎉</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '15px', fontWeight: '800', color: 'white', marginBottom: '2px' }}>
@@ -552,15 +546,17 @@ export default function Home() {
         {/* ── SIDEBAR ── */}
         <aside
           className={`sidebar ${sidebarOpen ? 'open' : ''}`}
-          style={{ width: '240px', ...glassDark, borderRadius: 0, borderRight: '1px solid rgba(255,255,255,0.1)', padding: '1.75rem 1rem', display: 'flex', flexDirection: 'column', gap: '2px', flexShrink: 0 }}
+          style={{ width: '240px', ...glassDark, borderRadius: 0, borderRight: '1px solid rgba(16,185,129,0.15)', padding: '1.75rem 1rem', display: 'flex', flexDirection: 'column', gap: '2px', flexShrink: 0 }}
         >
           {/* Logo */}
           <div style={{ paddingLeft: '14px', marginBottom: '2.5rem' }}>
-            <div style={{ fontSize: '22px', fontWeight: '800', color: 'white', letterSpacing: '-0.5px', textShadow: '0 0 30px rgba(167,139,250,0.6)' }}>✦ Clarity</div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', marginTop: '3px', fontWeight: '500' }}>Get in. Get organized. Get out.</div>
+            <div style={{ fontSize: '22px', fontWeight: '800', color: '#0f1c17', letterSpacing: '-0.5px' }}>
+              <span style={{ backgroundImage: GREEN_GRADIENT, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>✦</span> Clarity
+            </div>
+            <div style={{ fontSize: '11px', color: '#5b6b64', marginTop: '3px', fontWeight: '500' }}>Get in. Get organized. Get out.</div>
           </div>
 
-          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 14px 8px' }}>Main</div>
+          <div style={{ fontSize: '10px', color: '#5b6b64', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 14px 8px' }}>Main</div>
           {[
             { icon: '📊', label: 'Dashboard', path: '/', active: true },
             { icon: '💡', label: 'My Ideas',    path: '/ideas' },
@@ -573,7 +569,7 @@ export default function Home() {
             </div>
           ))}
 
-          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '16px 14px 8px', marginTop: '8px' }}>Premium</div>
+          <div style={{ fontSize: '10px', color: '#5b6b64', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '16px 14px 8px', marginTop: '8px' }}>Premium</div>
           {[
             { icon: '🎬', label: 'Video Analysis', path: '/video' },
             { icon: '📝', label: 'Content Brief',  path: '/brief' },
@@ -582,34 +578,34 @@ export default function Home() {
             <div key={item.label} className="nav-item" onClick={() => window.location.href = item.path}>
               <span style={{ fontSize: '16px' }}>{item.icon}</span>
               {item.label}
-              <span style={{ marginLeft: 'auto', fontSize: '9px', background: 'rgba(167,139,250,0.25)', color: '#c4b5fd', padding: '2px 8px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(167,139,250,0.3)' }}>PRO</span>
+              <span style={{ marginLeft: 'auto', fontSize: '9px', background: 'rgba(16,185,129,0.12)', color: '#065f46', padding: '2px 8px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.25)' }}>PRO</span>
             </div>
           ))}
 
-          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '16px 14px 8px', marginTop: '8px' }}>Account</div>
+          <div style={{ fontSize: '10px', color: '#5b6b64', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '16px 14px 8px', marginTop: '8px' }}>Account</div>
           <div className="nav-item" onClick={() => window.location.href = '/pricing'}><span style={{ fontSize: '16px' }}>💳</span> Upgrade</div>
           <div className="nav-item" onClick={() => window.location.href = '/updates'}><span style={{ fontSize: '16px' }}>✨</span> What&apos;s new</div>
-          <div className="nav-item" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/landing' }} style={{ color: '#fca5a5' }}>
+          <div className="nav-item" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/landing' }} style={{ color: '#dc2626' }}>
             <span style={{ fontSize: '16px' }}>🚪</span> Sign out
           </div>
 
           {/* User card */}
           <div
             onClick={() => window.location.href = '/settings'}
-            style={{ marginTop: 'auto', padding: '14px', background: 'rgba(255,255,255,0.08)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', transition: 'all 0.18s ease' }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.13)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+            style={{ marginTop: 'auto', padding: '14px', background: 'rgba(16,185,129,0.05)', borderRadius: '16px', border: '1px solid rgba(16,185,129,0.15)', cursor: 'pointer', transition: 'all 0.18s ease' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.09)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.05)')}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #a78bfa, #34d399)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '800', color: 'white', flexShrink: 0, boxShadow: '0 0 16px rgba(167,139,250,0.5)' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundImage: GREEN_GRADIENT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '800', color: 'white', flexShrink: 0, boxShadow: '0 0 16px rgba(16,185,129,0.35)' }}>
                 {user?.email?.slice(0,2).toUpperCase() || 'ME'}
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: '13px', fontWeight: '700', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName || user?.email?.split('@')[0] || 'User'}</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || ''}</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f1c17', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName || user?.email?.split('@')[0] || 'User'}</div>
+                <div style={{ fontSize: '11px', color: '#5b6b64', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || ''}</div>
               </div>
             </div>
-            <div style={{ marginTop: '10px', display: 'inline-block', background: 'rgba(167,139,250,0.2)', color: '#c4b5fd', fontSize: '10px', fontWeight: '700', padding: '4px 12px', borderRadius: '100px', border: '1px solid rgba(167,139,250,0.3)', letterSpacing: '0.04em' }}>FREE PLAN</div>
+            <div style={{ marginTop: '10px', display: 'inline-block', background: 'rgba(16,185,129,0.1)', color: '#065f46', fontSize: '10px', fontWeight: '700', padding: '4px 12px', borderRadius: '100px', border: '1px solid rgba(16,185,129,0.25)', letterSpacing: '0.04em' }}>FREE PLAN</div>
           </div>
         </aside>
 
@@ -618,34 +614,36 @@ export default function Home() {
 
           {/* Mobile header */}
           <div className="mobile-bar" style={{ display: 'none', alignItems: 'center', justifyContent: 'space-between' }}>
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'white' }}>☰</button>
-            <div style={{ fontSize: '18px', fontWeight: '800', color: 'white' }}>✦ Clarity</div>
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#0f1c17' }}>☰</button>
+            <div style={{ fontSize: '18px', fontWeight: '800', color: '#0f1c17' }}>
+              <span style={{ backgroundImage: GREEN_GRADIENT, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>✦</span> Clarity
+            </div>
             <div style={{ width: '32px' }} />
           </div>
 
           {/* ── HEADER ── */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
             <div>
-              <h1 style={{ fontSize: '34px', fontWeight: '800', color: 'white', letterSpacing: '-1px', lineHeight: '1.1', textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
-                {greeting()}, <span style={{ background: 'linear-gradient(135deg, #a78bfa, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{displayName || user?.email?.split('@')[0] || 'there'}</span> 👋
+              <h1 style={{ fontSize: '34px', fontWeight: '800', color: '#0f1c17', letterSpacing: '-1px', lineHeight: '1.1' }}>
+                {greeting()}, <span style={{ backgroundImage: GREEN_GRADIENT, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{displayName || user?.email?.split('@')[0] || 'there'}</span> 👋
               </h1>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', marginTop: '6px', fontWeight: '500' }}>
+              <p style={{ fontSize: '14px', color: '#5b6b64', marginTop: '6px', fontWeight: '500' }}>
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
               </p>
             </div>
             {streak > 0 && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '7px', ...glass, padding: '8px 16px', flexShrink: 0 }}>
                 <span>🔥</span>
-                <span style={{ fontSize: '13px', fontWeight: '700', color: '#fcd34d' }}>{streak} day streak</span>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: '#b45309' }}>{streak} day streak</span>
               </div>
             )}
           </div>
 
           {isNewUser && (
-            <div style={{ ...glass, padding: '1.5rem 1.75rem', border: '1px solid rgba(167,139,250,0.25)', boxShadow: '0 8px 32px rgba(124,58,237,0.2)' }}>
-              <div style={{ fontSize: '11px', fontWeight: '700', color: '#c4b5fd', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Welcome to Clarity</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '8px' }}>Your workspace is ready — start with your first brain dump</div>
-              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginBottom: '14px' }}>
+            <div style={{ ...glass, padding: '1.5rem 1.75rem', border: '1px solid rgba(16,185,129,0.2)', boxShadow: '0 8px 32px -12px rgba(16,185,129,0.3)' }}>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: '#065f46', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Welcome to Clarity</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: '#0f1c17', marginBottom: '8px' }}>Your workspace is ready — start with your first brain dump</div>
+              <div style={{ fontSize: '13px', color: '#5b6b64', lineHeight: 1.6, marginBottom: '14px' }}>
                 Type anything below — ideas, tasks, content plans — and Clarity will organize it for you.
               </div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -659,28 +657,28 @@ export default function Home() {
           )}
 
           {/* ── TODAY'S FOCUS ── */}
-          <div style={{ ...glass, padding: '2rem 2.25rem', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.25)' }}>
+          <div style={{ ...glass, padding: '2rem 2.25rem', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 40px -20px rgba(16,185,129,0.35)' }}>
             {/* inner glow */}
-            <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(167,139,250,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(52,211,153,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '-40px', left: '20%', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(5,150,105,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <div className="focus-inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1.5rem', position: 'relative' }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#34d399', display: 'inline-block', animation: 'pulse 2s ease infinite', boxShadow: '0 0 10px rgba(52,211,153,0.8)' }} />
+                <div style={{ fontSize: '11px', fontWeight: '700', color: '#5b6b64', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse 2s ease infinite', boxShadow: '0 0 10px rgba(16,185,129,0.6)' }} />
                   Today's focus
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: '800', color: 'white', lineHeight: '1.3', letterSpacing: '-0.5px', marginBottom: '12px', textShadow: '0 2px 16px rgba(0,0,0,0.3)' }}>
+                <div style={{ fontSize: '24px', fontWeight: '800', color: '#0f1c17', lineHeight: '1.3', letterSpacing: '-0.5px', marginBottom: '12px' }}>
                   {ideas.length > 0
                     ? (ideas[0].content.length > 85 ? ideas[0].content.slice(0, 85) + '...' : ideas[0].content)
                     : 'Start adding ideas to unlock your daily focus.'}
                 </div>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontWeight: '500' }}>Your most recent idea — make progress on this today 💪</div>
+                <div style={{ fontSize: '13px', color: '#5b6b64', fontWeight: '500' }}>Your most recent idea — make progress on this today 💪</div>
               </div>
               <button
                 onClick={() => window.location.href = '/ideas'}
-                style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '100px', padding: '10px 22px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontFamily: 'inherit', backdropFilter: 'blur(10px)', transition: 'all 0.2s ease' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}>
+                style={{ background: 'rgba(16,185,129,0.08)', color: '#065f46', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '100px', padding: '10px 22px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontFamily: 'inherit', transition: 'all 0.2s ease' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.15)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.08)')}>
                 View ideas →
               </button>
             </div>
@@ -689,23 +687,23 @@ export default function Home() {
           {/* ── STATS ── */}
           <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '14px' }}>
             {[
-              { label: 'Ideas saved',    value: ideasCount.toString(), sub: 'View all →',        icon: '💡', glow: 'rgba(167,139,250,0.3)', path: '/ideas' },
-              { label: 'Outputs created', value: outputsCount.toString(), sub: outputsCount > 0 ? 'View below ↓' : 'Ask AI to create', icon: '📊', glow: 'rgba(52,211,153,0.3)', path: '/' },
-              { label: 'Clarity Score',  value: clarityScore !== null ? clarityScore.toString() : '—', sub: clarityScore !== null ? 'View report →' : 'Get your score →', icon: '✨', glow: 'rgba(251,191,36,0.3)',  path: '/report' },
+              { label: 'Ideas saved',    value: ideasCount.toString(), sub: 'View all →',        icon: '💡', glow: 'rgba(16,185,129,0.22)', path: '/ideas' },
+              { label: 'Outputs created', value: outputsCount.toString(), sub: outputsCount > 0 ? 'View below ↓' : 'Ask AI to create', icon: '📊', glow: 'rgba(5,150,105,0.22)', path: '/' },
+              { label: 'Clarity Score',  value: clarityScore !== null ? clarityScore.toString() : '—', sub: clarityScore !== null ? 'View report →' : 'Get your score →', icon: '✨', glow: 'rgba(251,191,36,0.25)',  path: '/report' },
             ].map(stat => (
               <div key={stat.label} className="stat-card" onClick={() => window.location.href = stat.path}
-                style={{ ...glass, padding: '1.5rem', position: 'relative', overflow: 'hidden', boxShadow: `0 4px 24px ${stat.glow}` }}>
+                style={{ ...glass, padding: '1.5rem', position: 'relative', overflow: 'hidden', boxShadow: `0 4px 24px -10px ${stat.glow}` }}>
                 <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '52px', opacity: 0.15 }}>{stat.icon}</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>{stat.label}</div>
-                <div style={{ fontSize: '44px', fontWeight: '800', color: 'white', letterSpacing: '-2px', lineHeight: 1, marginBottom: '8px', textShadow: '0 2px 16px rgba(0,0,0,0.3)' }}>{stat.value}</div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', fontWeight: '700' }}>{stat.sub}</div>
+                <div style={{ fontSize: '11px', color: '#5b6b64', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>{stat.label}</div>
+                <div style={{ fontSize: '44px', fontWeight: '800', color: '#0f1c17', letterSpacing: '-2px', lineHeight: 1, marginBottom: '8px' }}>{stat.value}</div>
+                <div style={{ fontSize: '12px', color: '#5b6b64', fontWeight: '700' }}>{stat.sub}</div>
               </div>
             ))}
           </div>
 
           {/* ── QUICK ACTIONS ── */}
           <div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Quick actions</div>
+            <div style={{ fontSize: '11px', color: '#5b6b64', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Quick actions</div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {[
                 { emoji: '📋', label: 'Make a plan',       prompt: 'Make me an action plan for ' },
@@ -721,11 +719,11 @@ export default function Home() {
           </div>
 
           {/* ── AI BOX ── */}
-          <div style={{ ...glass, padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+          <div style={{ ...glass, padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', boxShadow: '0 8px 40px -20px rgba(16,185,129,0.3)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
-              <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#34d399', display: 'inline-block', animation: 'pulse 2s ease infinite', boxShadow: '0 0 12px rgba(52,211,153,0.8)' }} />
-              <span style={{ fontSize: '15px', fontWeight: '700', color: 'white' }}>What's on your mind?</span>
-              <span style={{ marginLeft: 'auto', fontSize: '11px', color: aiAtLimit ? '#fca5a5' : 'rgba(255,255,255,0.45)', fontWeight: '600', background: aiAtLimit ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.08)', padding: '3px 10px', borderRadius: '100px', border: `1px solid ${aiAtLimit ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.1)'}` }}>
+              <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse 2s ease infinite', boxShadow: '0 0 12px rgba(16,185,129,0.6)' }} />
+              <span style={{ fontSize: '15px', fontWeight: '700', color: '#0f1c17' }}>What's on your mind?</span>
+              <span style={{ marginLeft: 'auto', fontSize: '11px', color: aiAtLimit ? '#dc2626' : '#5b6b64', fontWeight: '600', background: aiAtLimit ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.06)', padding: '3px 10px', borderRadius: '100px', border: `1px solid ${aiAtLimit ? 'rgba(220,38,38,0.25)' : 'rgba(16,185,129,0.15)'}` }}>
                 {aiUsage?.unlimited
                   ? aiUsage.plan === 'premium' ? '✦ Unlimited AI · Priority' : '✦ Unlimited AI'
                   : aiUsage
@@ -735,11 +733,11 @@ export default function Home() {
             </div>
 
             {aiAtLimit && (
-              <div style={{ marginBottom: '1rem', padding: '12px 16px', borderRadius: '12px', background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(167,139,250,0.3)', fontSize: '13px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.55, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ marginBottom: '1rem', padding: '12px 16px', borderRadius: '12px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', fontSize: '13px', color: '#0f1c17', lineHeight: 1.55, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                 <span>⚡ Daily limit reached — resets tomorrow.</span>
                 <button
                   onClick={() => setShowUpgradeModal(true)}
-                  style={{ background: 'linear-gradient(135deg, #7c3aed, #0d9488)', border: 'none', borderRadius: '999px', color: 'white', fontSize: '12px', fontWeight: 700, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                  style={{ backgroundImage: GREEN_GRADIENT, border: 'none', borderRadius: '999px', color: 'white', fontSize: '12px', fontWeight: 700, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
                 >
                   Unlock unlimited →
                 </button>
@@ -750,7 +748,7 @@ export default function Home() {
             <div style={{ flex: 1, minHeight: '160px', display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', marginBottom: '1rem' }}>
               {messages.length === 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem 0', gap: '12px' }}>
-                  <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '13px', textAlign: 'center', fontStyle: 'italic' }}>
+                  <div style={{ color: '#5b6b64', fontSize: '13px', textAlign: 'center', fontStyle: 'italic' }}>
                     Dump your ideas, tasks, or goals here — the AI organizes everything ✨
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -760,9 +758,9 @@ export default function Home() {
                       { emoji: '🎯', text: 'Help me plan my goals for this week' },
                     ].map(p => (
                       <button key={p.text} onClick={() => setInput(p.text)}
-                        style={{ background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '100px', padding: '7px 14px', fontSize: '12px', fontWeight: '600', color: '#c4b5fd', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(167,139,250,0.22)'; e.currentTarget.style.color = 'white' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(167,139,250,0.12)'; e.currentTarget.style.color = '#c4b5fd' }}>
+                        style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '100px', padding: '7px 14px', fontSize: '12px', fontWeight: '600', color: '#065f46', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.15)'; e.currentTarget.style.color = '#0f1c17' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.08)'; e.currentTarget.style.color = '#065f46' }}>
                         {p.emoji} {p.text}
                       </button>
                     ))}
@@ -774,12 +772,11 @@ export default function Home() {
                   <div style={{
                     maxWidth: '82%', padding: '12px 18px', lineHeight: '1.7', fontSize: '14px',
                     borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                    background: msg.role === 'user' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.1)',
-                    color: msg.role === 'user' ? '#4c1d95' : 'rgba(255,255,255,0.9)',
+                    background: msg.role === 'user' ? GREEN_GRADIENT : 'rgba(16,185,129,0.05)',
+                    color: msg.role === 'user' ? 'white' : '#0f1c17',
                     fontWeight: msg.role === 'user' ? '700' : '400',
-                    border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.15)',
-                    boxShadow: msg.role === 'user' ? '0 4px 20px rgba(0,0,0,0.2)' : 'none',
-                    backdropFilter: 'blur(10px)',
+                    border: msg.role === 'user' ? 'none' : '1px solid rgba(16,185,129,0.12)',
+                    boxShadow: msg.role === 'user' ? '0 4px 20px -6px rgba(16,185,129,0.5)' : 'none',
                   }}>
                     {msg.role === 'ai'
                       ? <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formatAiText(msg.content)) }} />
@@ -789,7 +786,7 @@ export default function Home() {
               ))}
               {loading && (
                 <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                  <div style={{ padding: '12px 18px', borderRadius: '18px 18px 18px 4px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '14px', backdropFilter: 'blur(10px)' }}>
+                  <div style={{ padding: '12px 18px', borderRadius: '18px 18px 18px 4px', background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', gap: '8px', color: '#5b6b64', fontSize: '14px' }}>
                     <div className="spinner" /> Thinking...
                   </div>
                 </div>
@@ -801,7 +798,7 @@ export default function Home() {
                     const wb = XLSX.utils.book_new()
                     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
                     XLSX.writeFile(wb, `${spreadsheetData.title}.xlsx`)
-                  }} style={{ background: 'rgba(255,255,255,0.9)', color: '#4c1d95', border: 'none', borderRadius: '100px', padding: '12px 24px', fontSize: '14px', cursor: 'pointer', fontWeight: '800', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                  }} style={{ backgroundImage: GREEN_GRADIENT, color: 'white', border: 'none', borderRadius: '100px', padding: '12px 24px', fontSize: '14px', cursor: 'pointer', fontWeight: '800', fontFamily: 'inherit', boxShadow: '0 4px 16px -4px rgba(16,185,129,0.5)' }}>
                     📊 Download {spreadsheetData.title}.xlsx
                   </button>
                 </div>
@@ -809,7 +806,7 @@ export default function Home() {
             </div>
 
             {/* input row */}
-            <div className="input-row" style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '16px', padding: '12px 16px', backdropFilter: 'blur(10px)' }}>
+            <div className="input-row" style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '16px', padding: '12px 16px' }}>
               <textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}
@@ -817,7 +814,7 @@ export default function Home() {
                 placeholder={aiAtLimit ? 'Daily limit reached — upgrade or try again tomorrow' : 'Dump your ideas, tasks, or goals here... (Shift+Enter for new line)'}
                 rows={2}
                 disabled={aiAtLimit}
-                style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '14px', color: 'white', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5', opacity: aiAtLimit ? 0.5 : 1 }}
+                style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '14px', color: '#0f1c17', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5', opacity: aiAtLimit ? 0.5 : 1 }}
               />
               <button className="send-btn" onClick={sendMessage} disabled={loading || aiAtLimit}>
                 {loading ? '...' : aiAtLimit ? 'Limit reached' : "Let's go ↑"}
@@ -829,23 +826,23 @@ export default function Home() {
           <div className="bottom-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '14px' }}>
 
             {/* Recent ideas */}
-            <div style={{ ...glass, padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+            <div style={{ ...glass, padding: '1.5rem', boxShadow: '0 4px 24px -14px rgba(16,185,129,0.35)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <span style={{ fontSize: '15px', fontWeight: '700', color: 'white' }}>💡 Recent Ideas</span>
-                <span onClick={() => window.location.href = '/ideas'} style={{ fontSize: '12px', color: '#a78bfa', cursor: 'pointer', fontWeight: '700' }}>See all →</span>
+                <span style={{ fontSize: '15px', fontWeight: '700', color: '#0f1c17' }}>💡 Recent Ideas</span>
+                <span onClick={() => window.location.href = '/ideas'} style={{ fontSize: '12px', color: '#059669', cursor: 'pointer', fontWeight: '700' }}>See all →</span>
               </div>
               {ideas.length > 0 ? ideas.map((idea, i) => (
                 <div key={i} className="idea-row" onClick={() => window.location.href = '/ideas'}
-                  style={{ borderBottom: i < ideas.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
-                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '500', marginBottom: '5px', lineHeight: '1.45' }}>
+                  style={{ borderBottom: i < ideas.length - 1 ? '1px solid rgba(16,185,129,0.1)' : 'none' }}>
+                  <div style={{ fontSize: '13px', color: '#0f1c17', fontWeight: '500', marginBottom: '5px', lineHeight: '1.45' }}>
                     {idea.content.length > 65 ? idea.content.slice(0, 65) + '...' : idea.content}
                   </div>
-                  <span style={{ fontSize: '11px', color: '#a78bfa', background: 'rgba(167,139,250,0.15)', padding: '2px 10px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(167,139,250,0.25)' }}>
+                  <span style={{ fontSize: '11px', color: '#065f46', background: 'rgba(16,185,129,0.1)', padding: '2px 10px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.2)' }}>
                     {idea.tag}
                   </span>
                 </div>
               )) : (
-                <div style={{ textAlign: 'center', padding: '1.5rem 0', color: 'rgba(255,255,255,0.2)', fontSize: '13px' }}>
+                <div style={{ textAlign: 'center', padding: '1.5rem 0', color: '#5b6b64', fontSize: '13px' }}>
                   <div style={{ fontSize: '28px', marginBottom: '8px' }}>🌱</div>
                   No ideas yet — start chatting!
                 </div>
@@ -853,8 +850,8 @@ export default function Home() {
             </div>
 
             {/* Quick tools */}
-            <div style={{ ...glass, padding: '1.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginBottom: '1.25rem' }}>🛠 Your Tools</div>
+            <div style={{ ...glass, padding: '1.5rem', boxShadow: '0 4px 24px -14px rgba(16,185,129,0.35)' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: '#0f1c17', marginBottom: '1.25rem' }}>🛠 Your Tools</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {[
                   { emoji: '✨', label: 'Clarity Score',  desc: 'Weekly AI report on your ideas', path: '/report' },
@@ -865,10 +862,10 @@ export default function Home() {
                   <div key={tool.label} className="tool-row" onClick={() => window.location.href = tool.path}>
                     <span style={{ fontSize: '20px' }}>{tool.emoji}</span>
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{tool.label}</div>
-                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '1px' }}>{tool.desc}</div>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f1c17' }}>{tool.label}</div>
+                      <div style={{ fontSize: '11px', color: '#5b6b64', marginTop: '1px' }}>{tool.desc}</div>
                     </div>
-                    <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.3)', fontSize: '16px' }}>→</span>
+                    <span style={{ marginLeft: 'auto', color: '#5b6b64', fontSize: '16px' }}>→</span>
                   </div>
                 ))}
               </div>
@@ -876,20 +873,20 @@ export default function Home() {
           </div>
 
           {recentSpreadsheets.length > 0 && (
-            <div style={{ ...glass, padding: '1.5rem', boxShadow: '0 4px 24px rgba(52,211,153,0.15)' }}>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginBottom: '1rem' }}>📊 Your Spreadsheets</div>
+            <div style={{ ...glass, padding: '1.5rem', boxShadow: '0 4px 24px -14px rgba(16,185,129,0.35)' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: '#0f1c17', marginBottom: '1rem' }}>📊 Your Spreadsheets</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {recentSpreadsheets.map(sheet => (
                   <div key={sheet.id} className="tool-row" onClick={() => downloadSpreadsheet(sheet)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '12px', background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.12)', cursor: 'pointer' }}>
                     <span style={{ fontSize: '20px' }}>📊</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{sheet.title || 'Spreadsheet'}</div>
-                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f1c17' }}>{sheet.title || 'Spreadsheet'}</div>
+                      <div style={{ fontSize: '11px', color: '#5b6b64', marginTop: '2px' }}>
                         {new Date(sheet.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </div>
                     </div>
-                    <span style={{ fontSize: '12px', color: '#34d399', fontWeight: '700' }}>Download →</span>
+                    <span style={{ fontSize: '12px', color: '#059669', fontWeight: '700' }}>Download →</span>
                   </div>
                 ))}
               </div>
@@ -900,30 +897,30 @@ export default function Home() {
           <div className="premium-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '14px' }}>
 
             <div className="premium-card" onClick={() => window.location.href = '/brief'}
-              style={{ ...glass, padding: '1.75rem', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 32px rgba(167,139,250,0.2)' }}>
-              <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '160px', height: '160px', background: 'radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+              style={{ ...glass, padding: '1.75rem', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 32px -16px rgba(16,185,129,0.4)' }}>
+              <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '160px', height: '160px', background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
               <div style={{ position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                   <span style={{ fontSize: '30px' }}>📝</span>
-                  <span style={{ fontSize: '10px', background: 'rgba(167,139,250,0.2)', color: '#c4b5fd', padding: '3px 10px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(167,139,250,0.3)' }}>PRO</span>
+                  <span style={{ fontSize: '10px', background: 'rgba(16,185,129,0.12)', color: '#065f46', padding: '3px 10px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.25)' }}>PRO</span>
                 </div>
-                <div style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '8px' }}>AI Content Brief</div>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', lineHeight: '1.65', marginBottom: '16px' }}>Describe a video idea — get a full production brief with hook, script, thumbnail, and hashtags.</div>
-                <div style={{ fontSize: '13px', color: '#a78bfa', fontWeight: '700' }}>Generate brief →</div>
+                <div style={{ fontSize: '18px', fontWeight: '800', color: '#0f1c17', marginBottom: '8px' }}>AI Content Brief</div>
+                <div style={{ fontSize: '13px', color: '#5b6b64', lineHeight: '1.65', marginBottom: '16px' }}>Describe a video idea — get a full production brief with hook, script, thumbnail, and hashtags.</div>
+                <div style={{ fontSize: '13px', color: '#059669', fontWeight: '700' }}>Generate brief →</div>
               </div>
             </div>
 
             <div className="premium-card" onClick={() => window.location.href = '/schedule'}
-              style={{ ...glass, padding: '1.75rem', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 32px rgba(52,211,153,0.15)' }}>
-              <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '160px', height: '160px', background: 'radial-gradient(circle, rgba(52,211,153,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+              style={{ ...glass, padding: '1.75rem', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 32px -16px rgba(5,150,105,0.35)' }}>
+              <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '160px', height: '160px', background: 'radial-gradient(circle, rgba(5,150,105,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
               <div style={{ position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                   <span style={{ fontSize: '30px' }}>📅</span>
-                  <span style={{ fontSize: '10px', background: 'rgba(52,211,153,0.15)', color: '#6ee7b7', padding: '3px 10px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(52,211,153,0.25)' }}>PRO</span>
+                  <span style={{ fontSize: '10px', background: 'rgba(16,185,129,0.12)', color: '#065f46', padding: '3px 10px', borderRadius: '100px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.25)' }}>PRO</span>
                 </div>
-                <div style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '8px' }}>Posting Schedule</div>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', lineHeight: '1.65', marginBottom: '16px' }}>AI builds your optimal weekly posting schedule with content ideas for each slot.</div>
-                <div style={{ fontSize: '13px', color: '#34d399', fontWeight: '700' }}>Build my schedule →</div>
+                <div style={{ fontSize: '18px', fontWeight: '800', color: '#0f1c17', marginBottom: '8px' }}>Posting Schedule</div>
+                <div style={{ fontSize: '13px', color: '#5b6b64', lineHeight: '1.65', marginBottom: '16px' }}>AI builds your optimal weekly posting schedule with content ideas for each slot.</div>
+                <div style={{ fontSize: '13px', color: '#059669', fontWeight: '700' }}>Build my schedule →</div>
               </div>
             </div>
 
