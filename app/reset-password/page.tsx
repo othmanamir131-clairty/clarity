@@ -13,21 +13,48 @@ export default function ResetPassword() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    // Supabase's default (no custom SMTP) recovery email links land back here
-    // with the session delivered via the URL (hash tokens or a PKCE `code`,
-    // depending on project config) — detectSessionInUrl on the client picks
-    // either up automatically and fires this event once the session is set.
+    // TEMP diagnostics — remove once we've confirmed the real recovery link
+    // format Supabase is sending (PKCE `?code=` vs. hash tokens).
+    console.log('[reset-password] location.search:', window.location.search)
+    console.log('[reset-password] location.hash:', window.location.hash)
+
+    let settled = false
+
+    // @supabase/ssr's browser client hardcodes flowType: 'pkce', so the
+    // recovery link is expected to be `?code=...`. Exchange it explicitly
+    // rather than relying on detectSessionInUrl to do it silently.
+    const code = new URLSearchParams(window.location.search).get('code')
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (settled) return
+        if (error) {
+          console.error('[reset-password] exchangeCodeForSession failed:', error.message)
+          settled = true
+          setStatus('invalid')
+        } else {
+          settled = true
+          setStatus('ready')
+        }
+      })
+    }
+
+    // Fallback in case Supabase instead delivers a hash-based recovery link —
+    // detectSessionInUrl picks that up on its own and fires this event once
+    // it establishes a session from the URL.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
+      if (event === 'PASSWORD_RECOVERY' && !settled) {
+        settled = true
         setStatus('ready')
       }
     })
 
-    // If no recovery session shows up within a few seconds, the link is
-    // missing, invalid, or expired.
+    // If nothing above resolves the link, treat it as missing, invalid, or expired.
     const timeout = setTimeout(() => {
-      setStatus((current) => (current === 'verifying' ? 'invalid' : current))
-    }, 4000)
+      if (!settled) {
+        settled = true
+        setStatus('invalid')
+      }
+    }, 8000)
 
     return () => {
       subscription.unsubscribe()
