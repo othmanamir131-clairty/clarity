@@ -13,18 +13,26 @@ export default function ResetPassword() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const token_hash = params.get('token_hash')
-    const type = params.get('type')
-
-    if (!token_hash || type !== 'recovery') {
-      setStatus('invalid')
-      return
-    }
-
-    supabase.auth.verifyOtp({ token_hash, type: 'recovery' }).then(({ error }) => {
-      setStatus(error ? 'invalid' : 'ready')
+    // Supabase's default (no custom SMTP) recovery email links land back here
+    // with the session delivered via the URL (hash tokens or a PKCE `code`,
+    // depending on project config) — detectSessionInUrl on the client picks
+    // either up automatically and fires this event once the session is set.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setStatus('ready')
+      }
     })
+
+    // If no recovery session shows up within a few seconds, the link is
+    // missing, invalid, or expired.
+    const timeout = setTimeout(() => {
+      setStatus((current) => (current === 'verifying' ? 'invalid' : current))
+    }, 4000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeout)
+    }
   }, [])
 
   const handleSubmit = async () => {
